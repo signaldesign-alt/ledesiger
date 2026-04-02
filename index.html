@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LE DESIGNER SHOP</title>
+    
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Rajdhani:wght@500;700&family=Syncopate:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    
+    <style>
+        :root {
+            --primary: #00f2ff;
+            --secondary: #7000ff;
+            --bg-dark: #050508;
+            --card-bg: rgba(15, 15, 25, 0.85);
+            --telegram: #0088cc;
+            --signal: #3a76f0;
+        }
+
+        body, html {
+            margin: 0; padding: 0;
+            font-family: 'Rajdhani', sans-serif;
+            background: var(--bg-dark);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* --- BACKGROUND COMMUN (SPLASH + SHOP) --- */
+        .bg-vibe {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background: radial-gradient(circle at top right, #101025, #050508);
+        }
+        
+        .glow {
+            position: absolute; width: 350px; height: 350px;
+            background: var(--secondary); filter: blur(130px);
+            opacity: 0.2; border-radius: 50%;
+            animation: drift 15s infinite alternate;
+        }
+
+        @keyframes drift {
+            from { transform: translate(-10%, 10%); }
+            to { transform: translate(60%, 50%); }
+        }
+
+        /* --- PAGE DE RÉOUVERTURE --- */
+        #splash-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            background: inherit; /* Utilise le fond commun */
+        }
+
+        .splash-logo {
+            height: 250px;
+            filter: drop-shadow(0 0 25px var(--primary));
+            margin-bottom: 25px;
+        }
+
+        .loader-container {
+            width: 180px;
+            text-align: center;
+        }
+
+        .loader-bar {
+            height: 3px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        .loader-progress {
+            position: absolute;
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--secondary), var(--primary));
+            box-shadow: 0 0 15px var(--primary);
+        }
+
+        .welcome-text {
+            margin-top: 15px;
+            font-family: 'Syncopate', sans-serif;
+            font-size: 0.55rem;
+            letter-spacing: 5px;
+            color: white;
+            text-transform: uppercase;
+            opacity: 0.8;
+        }
+
+        /* --- CONTENU PRINCIPAL --- */
+        #main-content {
+            opacity: 0;
+            display: none;
+        }
+
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 30px 15px;
+            text-align: center;
+        }
+
+        #mainLogo {
+            height: 180px;
+            filter: drop-shadow(0 0 15px var(--primary));
+            margin-bottom: 5px;
+        }
+
+        .hero-title {
+            font-family: 'Syncopate', sans-serif;
+            font-size: 0.7rem;
+            letter-spacing: 4px;
+            margin-bottom: 30px;
+            color: var(--primary);
+            text-transform: uppercase;
+        }
+
+        .price-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 20px;
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        .cat-title {
+            font-family: 'Bungee', cursive;
+            color: white; font-size: 1rem; margin: 0 0 15px 0;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .cat-title::before { content: ""; width: 4px; height: 18px; background: var(--primary); border-radius: 2px; }
+
+        .price-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .price-row:last-child { border-bottom: none; }
+
+        .item-name { font-weight: 700; font-size: 0.9rem; display: block; text-transform: uppercase; }
+        .item-price { color: var(--primary); font-size: 0.8rem; font-family: 'Bungee'; }
+
+        .order-btn {
+            background: rgba(255, 255, 255, 0.05);
+            color: white; text-decoration: none; padding: 6px 12px;
+            border-radius: 8px; font-size: 0.65rem; font-weight: bold;
+            border: 1px solid var(--primary); transition: 0.3s;
+        }
+        .order-btn:hover { background: var(--primary); color: #000; box-shadow: 0 0 10px var(--primary); }
+
+        .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .btn-link {
+            text-decoration: none; color: white; display: flex; flex-direction: column;
+            align-items: center; padding: 15px; border-radius: 18px;
+            background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255,255,255,0.1); transition: 0.3s;
+        }
+        .btn-link i { font-size: 1.5rem; margin-bottom: 8px; }
+        .link-tg { border-bottom: 3px solid var(--telegram); }
+        .link-sg { border-bottom: 3px solid var(--signal); }
+        .btn-link:active { transform: scale(0.95); }
+
+        footer { margin-top: 40px; padding-bottom: 30px; opacity: 0.3; font-size: 0.6rem; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+
+    <div class="bg-vibe"><div class="glow"></div></div>
+
+    <div id="splash-screen">
+        <img src="https://i.postimg.cc/ryCD92fb/2FAF5166-0940-4A99-AA93-B9016AE88778.png" class="splash-logo" alt="Logo">
+        <div class="loader-container">
+            <div class="loader-bar">
+                <div class="loader-progress"></div>
+            </div>
+            <div class="welcome-text">Loading Signal...</div>
+        </div>
+    </div>
+
+    <div id="main-content">
+        <div class="container">
+            <img src="https://i.postimg.cc/ryCD92fb/2FAF5166-0940-4A99-AA93-B9016AE88778.png" id="mainLogo" alt="Logo">
+            <div class="hero-title">Designer Graphique & Informaticien <i class="fas fa-check-circle"></i></div>
+
+            <div class="price-card">
+                <h2 class="cat-title">Design & Création</h2>
+                <div class="price-row"><div class="item-info"><span class="item-name">Logo Personnalisé</span><span class="item-price">30€</span></div><a href="https://t.me/babydriverss" class="order-btn">Commander</a></div>
+                <div class="price-row"><div class="item-info"><span class="item-name">Flyer Personnalisé</span><span class="item-price">30€</span></div><a href="https://t.me/babydriverss" class="order-btn">Commander</a></div>
+                <div class="price-row"><div class="item-info"><span class="item-name">Logo Animé</span><span class="item-price">50€</span></div><a href="https://t.me/babydriverss" class="order-btn">Commander</a></div>
+                <div class="price-row"><div class="item-info"><span class="item-name">Flyer Animé</span><span class="item-price">60€</span></div><a href="https://t.me/babydriverss" class="order-btn">Commander</a></div>
+                <div class="price-row"><div class="item-info"><span class="item-name">Bannière</span><span class="item-price">30€</span></div><a href="https://t.me/babydriverss" class="order-btn">Commander</a></div>
+                <div class="price-row"><div class="item-info"><span class="item-name">Stickers Open/Close</span><span class="item-price">20€</span></div><a href="https://t.me/babydriverss" class="order-btn">Commander</a></div>
+                <div class="price-row"><div class="item-info"><span class="item-name">Lens Snap</span><span class="item-price">25€</span></div><a href="https://t.me/babydriverss" class="order-btn">Commander</a></div>
+            </div>
+
+            <div class="price-card">
+                <h2 class="cat-title">Web & Apps</h2>
+                <div class="price-row"><div class="item-info"><span class="item-name">Mini Application Simple</span><span class="item-price">200€</span></div><a href="https://t.me/babydriverss" class="order-btn">Commander</a></div>
+                <div class="price-row"><div class="item-info"><span class="item-name">Mini Application Premium</span><span class="item-price">350€</span></div><a href="https://t.me/babydriverss" class="order-btn">Commander</a></div>
+                <div class="price-row"><div class="item-info"><span class="item-name">Site Internet</span><span class="item-price">400€</span></div><a href="https://t.me/babydriverss" class="order-btn">Commander</a></div>
+                <div class="price-row"><div class="item-info"><span class="item-name">Impression</span><span class="item-price">Devis</span></div><a href="https://t.me/babydriverss" class="order-btn">Commander</a></div>
+            </div>
+
+            <div class="price-card">
+                <h2 class="cat-title">Packs & Abonnements</h2>
+                <div class="price-row"><div class="item-info"><span class="item-name">Pack Flyer</span><span class="item-price">80€</span></div><a href="https://t.me/babydriverss" class="order-btn">Commander</a></div>
+                <div class="price-row"><div class="item-info"><span class="item-name">Pack Snapchat</span><span class="item-price">120€</span></div><a href="https://t.me/babydriverss" class="order-btn">Commander</a></div>
+                <div class="price-row"><div class="item-info"><span class="item-name">Pack Telegram</span><span class="item-price">160€</span></div><a href="https://t.me/babydriverss" class="order-btn">Commander</a></div>
+                <div class="price-row"><div class="item-info"><span class="item-name">Pack Personnalisé</span><span class="item-price">Devis</span></div><a href="https://t.me/babydriverss" class="order-btn">Contact</a></div>
+                  >
+                <div class="price-row"><div class="item-info"><span class="item-name">Abonnement 2 mois
+                  </span><span class="item-price">180€</span></div><a href="https://t.me/babydriverss" class="order-btn">S'abonner</a></div
+                  >             
+                <div class="price-row"><div class="item-info"><span class="item-name">Abonnement 5 mois</span><span class="item-price">360€</span></div><a href="https://t.me/babydriverss" class="order-btn">S'abonner</a></div
+                  >                  <div class="price-row"><div class="item-info"><span class="item-name">Abonnement 1 An</span><span class="item-price">540€</span></div><a href="https://t.me/babydriverss" class="order-btn">S'abonner</a></div
+                  >
+                  
+                <div class="contact-grid">
+                <a href="https://t.me/babydriverss" class="btn-link link-tg"><i class="fab fa-telegram-plane"></i> Telegram</a>
+                <a href="https://wa.me/33748423287" class="btn-link link-sg"><i class="fas fa-comment-dots"></i> WhatsApp</a>
+                </div>
+
+            <footer>© LE DESIGNER & BABYDRIVERSS
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        window.addEventListener('load', () => {
+            // Animation chargement barre
+            gsap.to(".loader-progress", {
+                width: "100%",
+                duration: 2,
+                ease: "power1.inOut",
+                onComplete: () => {
+                    // Transition douce vers le shop
+                    gsap.to("#splash-screen", {
+                        opacity: 0,
+                        duration: 0.6,
+                        onComplete: () => {
+                            document.getElementById("splash-screen").style.display = "none";
+                            const main = document.getElementById("main-content");
+                            main.style.display = "block";
+                            gsap.to(main, { opacity: 1, duration: 0.8 });
+                            startShopAnimations();
+                        }
+                    });
+                }
+            });
+
+            // Flottaison du logo splash
+            gsap.to(".splash-logo", { y: -15, duration: 2, repeat: -1, yoyo: true, ease: "power1.inOut" });
+        });
+
+        function startShopAnimations() {
+            gsap.to("#mainLogo", { y: -8, duration: 2, repeat: -1, yoyo: true, ease: "power1.inOut" });
+            gsap.from(".price-card", { opacity: 0, x: -20, stagger: 0.1, duration: 0.6, ease: "power2.out" });
+        }
+    </script>
+</body>
+</html>
