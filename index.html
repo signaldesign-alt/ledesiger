@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>LE DESIGNER SHOP</title>
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -13,263 +13,316 @@
     <style>
         :root {
             --primary: #00f2ff;
+            --primary-dim: rgba(0, 242, 255, 0.1);
             --secondary: #7000ff;
-            --bg-dark: #050508;
-            --card-bg: rgba(15, 15, 25, 0.85);
-            --telegram: #0088cc;
-            --signal: #3a76f0;
+            --gold: #d4af37;
+            --gold-dim: rgba(212, 175, 55, 0.1);
+            --bg-dark: #020204;
+            --card-bg: rgba(10, 10, 18, 0.95);
+            --text-main: #ffffff;
+            --text-muted: #888899;
         }
 
         body, html {
             margin: 0; padding: 0;
             font-family: 'Rajdhani', sans-serif;
             background: var(--bg-dark);
-            color: white;
+            color: var(--text-main);
             min-height: 100vh;
-            overflow-x: hidden;
+            overflow: hidden; /* Empêche le scroll global, géré par page */
+            user-select: none;
         }
 
-        /* --- BACKGROUND COMMUN (SPLASH + SHOP) --- */
-        .bg-vibe {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1;
-            background: radial-gradient(circle at top right, #101025, #050508);
-        }
-        
-        .glow {
-            position: absolute; width: 350px; height: 350px;
-            background: var(--secondary); filter: blur(130px);
-            opacity: 0.2; border-radius: 50%;
-            animation: drift 15s infinite alternate;
-        }
+        /* --- BACKGROUND --- */
+        .bg-vibe { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; background: radial-gradient(circle at 50% -20%, #151525, #020204); }
+        .glow-ambient { position: absolute; width: 400px; height: 400px; background: var(--secondary); filter: blur(150px); opacity: 0.15; border-radius: 50%; pointer-events: none; }
 
-        @keyframes drift {
-            from { transform: translate(-10%, 10%); }
-            to { transform: translate(60%, 50%); }
-        }
-
-        /* --- PAGE DE RÉOUVERTURE --- */
+        /* --- SPLASH (LOGO CENTRAL GÉANT) --- */
         #splash-screen {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            background: inherit; /* Utilise le fond commun */
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 10000; background: var(--bg-dark);
         }
-
         .splash-logo {
-            height: 250px;
-            filter: drop-shadow(0 0 25px var(--primary));
-            margin-bottom: 25px;
-        }
-
-        .loader-container {
-            width: 180px;
-            text-align: center;
-        }
-
-        .loader-bar {
-            height: 3px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 10px;
-            overflow: hidden;
-            position: relative;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
-        }
-
-        .loader-progress {
-            position: absolute;
-            width: 0%;
-            height: 100%;
-            background: linear-gradient(90deg, var(--secondary), var(--primary));
-            box-shadow: 0 0 15px var(--primary);
-        }
-
-        .welcome-text {
-            margin-top: 15px;
-            font-family: 'Syncopate', sans-serif;
-            font-size: 0.55rem;
-            letter-spacing: 5px;
-            color: white;
-            text-transform: uppercase;
-            opacity: 0.8;
-        }
-
-        /* --- CONTENU PRINCIPAL --- */
-        #main-content {
-            opacity: 0;
-            display: none;
-        }
-
-        .container {
-            max-width: 480px;
-            margin: 0 auto;
-            padding: 30px 15px;
-            text-align: center;
-        }
-
-        #mainLogo {
-            height: 180px;
-            filter: drop-shadow(0 0 15px var(--primary));
-            margin-bottom: 5px;
-        }
-
-        .hero-title {
-            font-family: 'Syncopate', sans-serif;
-            font-size: 0.7rem;
-            letter-spacing: 4px;
+            width: 85%; max-width: 300px; /* Logo géant au milieu */
+            filter: drop-shadow(0 0 35px var(--primary));
             margin-bottom: 30px;
-            color: var(--primary);
-            text-transform: uppercase;
+        }
+        .loader-bar { width: 220px; height: 3px; background: rgba(255,255,255,0.03); border-radius: 10px; overflow: hidden; position: relative; }
+        .loader-progress { position: absolute; width: 0%; height: 100%; background: linear-gradient(90deg, var(--secondary), var(--primary)); box-shadow: 0 0 15px var(--primary); }
+
+        /* --- SYSTÈME DE PAGES --- */
+        .page {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            display: none; opacity: 0;
+            overflow-y: auto; -webkit-overflow-scrolling: touch;
+            padding: 200px 15px 90px 15px; /* Padding pour nav et footer */
+            box-sizing: border-box;
+            z-index: 10;
+        }
+        .page.active { display: block; opacity: 1; z-index: 20; }
+
+        /* --- NAVIGATION SUPÉRIEURE --- */
+        .top-nav {
+            position: fixed; top: 0; left: 0; width: 100%; height: 200px;
+            background: rgba(5, 5, 10, 0.85); backdrop-filter: blur(15px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1000; border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .nav-logo { height: 200px; filter: drop-shadow(0 0 30px var(--primary)); }
+
+        /* --- BARRE DE NAVIGATION INFÉRIEURE --- */
+        .bottom-bar {
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 75px;
+            background: rgba(5, 5, 10, 0.9); backdrop-filter: blur(20px);
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            z-index: 1000; border-top: 1px solid rgba(255,255,255,0.08);
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.5);
+        }
+        .nav-item {
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            color: var(--text-muted); text-decoration: none; font-size: 0.65rem;
+            text-transform: uppercase; font-weight: bold; letter-spacing: 1px;
+            transition: 0.3s; position: relative;
+        }
+        .nav-item i { font-size: 1.4rem; margin-bottom: 5px; transition: 0.3s; }
+        .nav-item.active { color: var(--primary); }
+        .nav-item.active i { transform: translateY(-5px); filter: drop-shadow(0 0 8px var(--primary)); }
+        .nav-item.active::after {
+            content: ''; position: absolute; bottom: 10px; width: 20px; height: 2px;
+            background: var(--primary); border-radius: 2px; box-shadow: 0 0 10px var(--primary);
         }
 
-        .price-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 24px;
-            padding: 20px;
-            margin-bottom: 25px;
-            text-align: left;
-        }
-
+        /* --- TITRES --- */
         .cat-title {
-            font-family: 'Bungee', cursive;
-            color: white; font-size: 1rem; margin: 0 0 15px 0;
+            font-family: 'Bungee'; font-size: 1.1rem; color: #fff;
+            margin: 20px 0 15px 0; text-align: left; text-transform: uppercase;
             display: flex; align-items: center; gap: 10px;
         }
-        .cat-title::before { content: ""; width: 4px; height: 18px; background: var(--primary); border-radius: 2px; }
+        .cat-title::before { content: ''; width: 3px; height: 18px; background: var(--primary); box-shadow: 0 0 10px var(--primary); }
 
-        .price-row {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+        /* --- GRILLES & CARTES --- */
+        .container { max-width: 480px; margin: 0 auto; }
+        .product-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+        /* --- EFFET LUMIÈRE TOURNANTE (BORDER ANIMATION) --- */
+        .card-wrapper {
+            position: relative; border-radius: 18px; overflow: hidden; padding: 2px; /* Espace pour la bordure */
+            background: rgba(255,255,255,0.03); /* Fond par défaut léger */
+            transition: transform 0.3s ease;
         }
-        .price-row:last-child { border-bottom: none; }
+        .card-wrapper::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: conic-gradient(transparent, transparent, transparent, var(--primary));
+            animation: rotate-border 4s linear infinite;
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .card-wrapper.active-border::before { opacity: 1; } /* S'active au hover/click */
 
-        .item-name { font-weight: 700; font-size: 0.9rem; display: block; text-transform: uppercase; }
-        .item-price { color: var(--primary); font-size: 0.8rem; font-family: 'Bungee'; }
+        @keyframes rotate-border { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .product-card {
+            background: var(--card-bg); border-radius: 16px; padding: 15px;
+            height: 100%; display: flex; flex-direction: column; justify-content: space-between;
+            position: relative; z-index: 1; /* Par-dessus l'animation */
+            box-sizing: border-box;
+        }
+
+        /* --- STYLE OR (GOLD) --- */
+        .gold-card-wrapper { background: rgba(212, 175, 55, 0.05); grid-column: span 2; }
+        .gold-card-wrapper::before { background: conic-gradient(transparent, transparent, transparent, var(--gold)); animation-duration: 3s; }
+        .gold-card { background: linear-gradient(145deg, #0f0f15, #050508); }
+
+        /* --- DÉTAILS PRODUITS --- */
+        .item-name { font-weight: 700; font-size: 0.8rem; display: block; color: #fff; text-transform: uppercase; margin-bottom: 4px; }
+        .item-price { color: var(--primary); font-family: 'Bungee'; font-size: 0.9rem; margin-bottom: 12px; display: block; text-shadow: 0 0 10px var(--primary-dim); }
+        .gold-card .item-price { color: var(--gold); text-shadow: 0 0 10px var(--gold-dim); }
 
         .order-btn {
-            background: rgba(255, 255, 255, 0.05);
-            color: white; text-decoration: none; padding: 6px 12px;
-            border-radius: 8px; font-size: 0.65rem; font-weight: bold;
-            border: 1px solid var(--primary); transition: 0.3s;
+            background: var(--primary-dim); color: var(--primary);
+            text-decoration: none; padding: 8px; border-radius: 8px;
+            font-size: 0.65rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;
+            border: 1px solid var(--primary); transition: 0.3s; text-align: center;
         }
-        .order-btn:hover { background: var(--primary); color: #000; box-shadow: 0 0 10px var(--primary); }
+        .order-btn:active { background: var(--primary); color: #000; box-shadow: 0 0 15px var(--primary); }
+        .gold-card .order-btn { background: var(--gold-dim); color: var(--gold); border-color: var(--gold); }
+        .gold-card .order-btn:active { background: var(--gold); color: #000; box-shadow: 0 0 15px var(--gold); }
 
-        .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
-        .btn-link {
-            text-decoration: none; color: white; display: flex; flex-direction: column;
-            align-items: center; padding: 15px; border-radius: 18px;
-            background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255,255,255,0.1); transition: 0.3s;
+        /* --- PAGES SPÉCIALES --- */
+        .big-icon-page { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; height: 80vh; }
+        .big-icon { font-size: 4rem; color: var(--primary); margin-bottom: 25px; filter: drop-shadow(0 0 20px var(--primary)); }
+        .gold-icon { color: var(--gold); filter: drop-shadow(0 0 20px var(--gold)); }
+        
+        .page-text { font-size: 0.9rem; color: var(--text-main); max-width: 300px; line-height: 1.6; margin-bottom: 30px; }
+        .page-text b { color: var(--primary); }
+        .gold-text b { color: var(--gold); }
+
+        .action-btn {
+            background: linear-gradient(90deg, var(--secondary), var(--primary));
+            color: #000; font-family: 'Bungee'; font-size: 0.9rem;
+            padding: 15px 30px; border-radius: 50px; text-decoration: none;
+            box-shadow: 0 0 20px var(--primary-dim); transition: 0.3s;
         }
-        .btn-link i { font-size: 1.5rem; margin-bottom: 8px; }
-        .link-tg { border-bottom: 3px solid var(--telegram); }
-        .link-sg { border-bottom: 3px solid var(--signal); }
-        .btn-link:active { transform: scale(0.95); }
+        .action-btn:active { transform: scale(0.95); box-shadow: 0 0 30px var(--primary); }
+        
+        .info-list { text-align: left; background: var(--card-bg); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); }
+        .info-list-item { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; font-size: 0.85rem; color: var(--text-main); }
+        .info-list-item i { color: var(--primary); font-size: 1.1rem; width: 20px; text-align: center; }
 
-        footer { margin-top: 40px; padding-bottom: 30px; opacity: 0.3; font-size: 0.6rem; text-transform: uppercase; }
+        .social-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 300px; margin-top: 20px; }
+        .social-btn {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 12px; border-radius: 10px; background: rgba(255,255,255,0.03);
+            color: #fff; text-decoration: none; font-size: 0.7rem; font-weight: bold; text-transform: uppercase;
+            border: 1px solid rgba(255,255,255,0.08); transition: 0.3s;
+        }
+        .social-btn:active { background: rgba(255,255,255,0.1); }
+        .link-tg { border-color: #0088cc; color: #0088cc; }
+        .link-wa { border-color: #25d366; color: #25d366; }
+
+        footer { text-align: center; margin-top: 30px; opacity: 0.3; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 2px; }
     </style>
 </head>
 <body>
 
-    <div class="bg-vibe"><div class="glow"></div></div>
+    <div class="bg-vibe"><div class="glow-ambient"></div></div>
 
     <div id="splash-screen">
-        <img src="https://i.postimg.cc/ryCD92fb/2FAF5166-0940-4A99-AA93-B9016AE88778.png" class="splash-logo" alt="Logo">
-        <div class="loader-container">
-            <div class="loader-bar">
-                <div class="loader-progress"></div>
+        <img src="https://i.postimg.cc/ryCD92fb/2FAF5166-0940-4A99-AA93-B9016AE88778.png" class="splash-logo" alt="Logo Géant">
+        <div class="loader-bar"><div class="loader-progress"></div></div>
+    </div>
+
+    <div class="top-nav">
+        <img src="https://i.postimg.cc/ryCD92fb/2FAF5166-0940-4A99-AA93-B9016AE88778.png" class="nav-logo" alt="Nav Logo">
+    </div>
+
+    <div id="page-shop" class="page active">
+        <div class="container">
+            <h2 class="cat-title">Design & Création</h2>
+            <div class="product-grid">
+                <div class="card-wrapper active-border"><div class="product-card"><span class="item-name">Logo Perso</span><span class="item-price">30€</span><a href="https://t.me/babydriverss" class="order-btn">Commander</a></div></div>
+                <div class="card-wrapper active-border"><div class="product-card"><span class="item-name">Flyer Perso</span><span class="item-price">30€</span><a href="https://t.me/babydriverss" class="order-btn">Commander</a></div></div>
+                <div class="card-wrapper active-border"><div class="product-card"><span class="item-name">Logo Animé</span><span class="item-price">50€</span><a href="https://t.me/babydriverss" class="order-btn">Commander</a></div></div>
+                <div class="card-wrapper active-border"><div class="product-card"><span class="item-name">Flyer Animé</span><span class="item-price">60€</span><a href="https://t.me/babydriverss" class="order-btn">Commander</a></div></div>
+                <div class="card-wrapper active-border"><div class="product-card"><span class="item-name">Bannière</span><span class="item-price">30€</span><a href="https://t.me/babydriverss" class="order-btn">Commander</a></div></div>
+                <div class="card-wrapper active-border"><div class="product-card"><span class="item-name"> 2 Stickers </span><span class="item-price">20€</span><a href="https://t.me/babydriverss" class="order-btn">Commander</a></div></div>
+                <div class="card-wrapper active-border"><div class="product-card"><span class="item-name">Lens Snap</span><span class="item-price">25€</span><a href="https://t.me/babydriverss" class="order-btn">Commander</a></div></div>
+                <div class="card-wrapper active-border"><div class="product-card"><span class="item-name">Impression</span><span class="item-price">DEVIS</span><a href="https://t.me/babydriverss" class="order-btn">Demander</a></div></div>
             </div>
-            <div class="welcome-text">Loading Signal...</div>
+
+            <h2 class="cat-title">Web & Apps</h2>
+            <div class="product-grid">
+                <div class="card-wrapper active-border"><div class="product-card"><span class="item-name">App Simple</span><span class="item-price">200€</span><a href="https://t.me/babydriverss" class="order-btn">Commander</a></div></div>
+                <div class="card-wrapper active-border"><div class="product-card"><span class="item-name">App Premium</span><span class="item-price">350€</span><a href="https://t.me/babydriverss" class="order-btn">Commander</a></div></div>
+                <div class="card-wrapper active-border" style="grid-column: span 2;"><div class="product-card"><span class="item-name">Site Internet Complet</span><span class="item-price">400€</span><a href="https://t.me/babydriverss" class="order-btn">Commander</a></div></div>
+            </div>
+
+            <h2 class="cat-title">Packs & VIP</h2>
+            <div class="product-grid">
+                <div class="card-wrapper gold-card-wrapper active-border"><div class="product-card gold-card"><span class="item-name">Pack Flyer</span><span class="item-price">80€</span><a href="https://t.me/babydriverss" class="order-btn">Prendre le Pack</a></div></div>
+                <div class="card-wrapper gold-card-wrapper active-border"><div class="product-card gold-card"><span class="item-name">Pack Snapchat</span><span class="item-price">120€</span><a href="https://t.me/babydriverss" class="order-btn">Prendre le Pack</a></div></div>
+                <div class="card-wrapper gold-card-wrapper active-border"><div class="product-card gold-card"><span class="item-name">Pack Telegram</span><span class="item-price">160€</span><a href="https://t.me/babydriverss" class="order-btn">Prendre le Pack</a></div></div>
+                <div class="card-wrapper gold-card-wrapper active-border"><div class="product-card gold-card"><span class="item-name">Abonnement 2 Mois</span><span class="item-price">180€</span><a href="https://t.me/babydriverss" class="order-btn">S'abonner</a></div></div>
+                <div class="card-wrapper gold-card-wrapper active-border"><div class="product-card gold-card"><span class="item-name">Abonnement 5 Mois</span><span class="item-price">360€</span><a href="https://t.me/babydriverss" class="order-btn">S'abonner</a></div></div>
+                <div class="card-wrapper gold-card-wrapper active-border"><div class="product-card gold-card"><span class="item-name">Abonnement 1 An</span><span class="item-price">540€</span><a href="https://t.me/babydriverss" class="order-btn">S'abonner</a></div></div>
+            </div>
+            <footer>© LE DESIGNER</footer>
         </div>
     </div>
 
-    <div id="main-content">
-        <div class="container">
-            <img src="https://i.postimg.cc/ryCD92fb/2FAF5166-0940-4A99-AA93-B9016AE88778.png" id="mainLogo" alt="Logo">
-            <div class="hero-title">Designer Graphique & Informaticien <i class="fas fa-check-circle"></i></div>
-
-            <div class="price-card">
-                <h2 class="cat-title">Design & Création</h2>
-                <div class="price-row"><div class="item-info"><span class="item-name">Logo Personnalisé</span><span class="item-price">30€</span></div><a href="https://t.me/babydriverss" class="order-btn">Commander</a></div>
-                <div class="price-row"><div class="item-info"><span class="item-name">Flyer Personnalisé</span><span class="item-price">30€</span></div><a href="https://t.me/babydriverss" class="order-btn">Commander</a></div>
-                <div class="price-row"><div class="item-info"><span class="item-name">Logo Animé</span><span class="item-price">50€</span></div><a href="https://t.me/babydriverss" class="order-btn">Commander</a></div>
-                <div class="price-row"><div class="item-info"><span class="item-name">Flyer Animé</span><span class="item-price">60€</span></div><a href="https://t.me/babydriverss" class="order-btn">Commander</a></div>
-                <div class="price-row"><div class="item-info"><span class="item-name">Bannière</span><span class="item-price">30€</span></div><a href="https://t.me/babydriverss" class="order-btn">Commander</a></div>
-                <div class="price-row"><div class="item-info"><span class="item-name">Stickers Open/Close</span><span class="item-price">20€</span></div><a href="https://t.me/babydriverss" class="order-btn">Commander</a></div>
-                <div class="price-row"><div class="item-info"><span class="item-name">Lens Snap</span><span class="item-price">25€</span></div><a href="https://t.me/babydriverss" class="order-btn">Commander</a></div>
-            </div>
-
-            <div class="price-card">
-                <h2 class="cat-title">Web & Apps</h2>
-                <div class="price-row"><div class="item-info"><span class="item-name">Mini Application Simple</span><span class="item-price">200€</span></div><a href="https://t.me/babydriverss" class="order-btn">Commander</a></div>
-                <div class="price-row"><div class="item-info"><span class="item-name">Mini Application Premium</span><span class="item-price">350€</span></div><a href="https://t.me/babydriverss" class="order-btn">Commander</a></div>
-                <div class="price-row"><div class="item-info"><span class="item-name">Site Internet</span><span class="item-price">400€</span></div><a href="https://t.me/babydriverss" class="order-btn">Commander</a></div>
-                <div class="price-row"><div class="item-info"><span class="item-name">Impression</span><span class="item-price">Devis</span></div><a href="https://t.me/babydriverss" class="order-btn">Commander</a></div>
-            </div>
-
-            <div class="price-card">
-                <h2 class="cat-title">Packs & Abonnements</h2>
-                <div class="price-row"><div class="item-info"><span class="item-name">Pack Flyer</span><span class="item-price">80€</span></div><a href="https://t.me/babydriverss" class="order-btn">Commander</a></div>
-                <div class="price-row"><div class="item-info"><span class="item-name">Pack Snapchat</span><span class="item-price">120€</span></div><a href="https://t.me/babydriverss" class="order-btn">Commander</a></div>
-                <div class="price-row"><div class="item-info"><span class="item-name">Pack Telegram</span><span class="item-price">160€</span></div><a href="https://t.me/babydriverss" class="order-btn">Commander</a></div>
-                <div class="price-row"><div class="item-info"><span class="item-name">Pack Personnalisé</span><span class="item-price">Devis</span></div><a href="https://t.me/babydriverss" class="order-btn">Contact</a></div>
-                  >
-                <div class="price-row"><div class="item-info"><span class="item-name">Abonnement 2 mois
-                  </span><span class="item-price">180€</span></div><a href="https://t.me/babydriverss" class="order-btn">S'abonner</a></div
-                  >             
-                <div class="price-row"><div class="item-info"><span class="item-name">Abonnement 5 mois</span><span class="item-price">360€</span></div><a href="https://t.me/babydriverss" class="order-btn">S'abonner</a></div
-                  >                  <div class="price-row"><div class="item-info"><span class="item-name">Abonnement 1 An</span><span class="item-price">540€</span></div><a href="https://t.me/babydriverss" class="order-btn">S'abonner</a></div
-                  >
-                  
-                <div class="contact-grid">
-                <a href="https://t.me/babydriverss" class="btn-link link-tg"><i class="fab fa-telegram-plane"></i> Telegram</a>
-                <a href="https://wa.me/33748423287" class="btn-link link-sg"><i class="fas fa-comment-dots"></i> WhatsApp</a>
-                </div>
-
-            <footer>© LE DESIGNER & BABYDRIVERSS
-            </footer>
+    <div id="page-catalog" class="page">
+        <div class="container big-icon-page gold-text">
+            <i class="fas fa-images big-icon gold-icon"></i>
+            <div class="page-text">Découvrez l'intégralité de mes réalisations. Designs, logos, et projets complets sont regroupés dans mon <b>Catalogue Officiel</b>.</div>
+            <a href="https://t.me/+7RMihQjWOGlmNjU8" class="action-btn">Ouvrir le Catalogue</a>
         </div>
+    </div>
+
+    <div id="page-infos" class="page">
+        <div class="container">
+            <h2 class="cat-title">Informations Boutique</h2>
+            <div class="info-list">
+                <div class="info-list-item"><i class="fas fa-clock"></i><span>Disponibilités : <b>LUN-VEN / 09H-22H</b></span></div>
+                <div class="info-list-item"><i class="fas fa-truck"></i><span>Livraison Impression : <b>48H / 72H</b></span></div>
+                <div class="info-list-item"><i class="fas fa-wallet"></i><span>Paiements acceptés : <b>VIREMENT & PAYPAL</b></span></div>
+                <div class="info-list-item"><i class="fas fa-check-double"></i><span>Qualité garantie : <b>VÉRIFIÉ</b></span></div>
+            </div>
+            
+            <h2 class="cat-title">Contact Rapide</h2>
+            <div class="social-grid">
+                <a href="https://t.me/babydriverss" class="social-btn link-tg"><i class="fab fa-telegram-plane"></i> Telegram</a>
+                <a href="https://wa.me/33748423287" class="social-btn link-wa"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+            </div>
+            <footer>© LE DESIGNER</footer>
+        </div>
+    </div>
+
+    <div id="page-install" class="page">
+        <div class="container big-icon-page">
+            <i class="fas fa-plus-circle big-icon"></i>
+            <div class="page-text">Enregistrez l'application <b>LE DESIGNER SHOP</b> sur votre écran d'accueil pour y accéder instantanément.</div>
+            <div class="action-btn" onclick="showInstallAlert()">Installer l'App</div>
+        </div>
+    </div>
+
+    <div class="bottom-bar">
+        <div class="nav-item active" onclick="switchPage('shop')"><i class="fas fa-store"></i>Shop</div>
+        <div class="nav-item" onclick="switchPage('catalog')"><i class="fas fa-images"></i>Catalogue</div>
+        <div class="nav-item" onclick="switchPage('infos')"><i class="fas fa-info-circle"></i>Infos</div>
+        <div class="nav-item" onclick="switchPage('install')"><i class="fas fa-download"></i>Installer</div>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
+        tg.headerColor = "#05050a";
 
+        // SPLASH SCREEN ANIMATION
         window.addEventListener('load', () => {
-            // Animation chargement barre
             gsap.to(".loader-progress", {
-                width: "100%",
-                duration: 2,
-                ease: "power1.inOut",
+                width: "100%", duration: 2.5, ease: "power2.inOut",
                 onComplete: () => {
-                    // Transition douce vers le shop
                     gsap.to("#splash-screen", {
-                        opacity: 0,
-                        duration: 0.6,
+                        opacity: 0, duration: 0.6, ease: "power2.out",
                         onComplete: () => {
                             document.getElementById("splash-screen").style.display = "none";
-                            const main = document.getElementById("main-content");
-                            main.style.display = "block";
-                            gsap.to(main, { opacity: 1, duration: 0.8 });
-                            startShopAnimations();
+                            gsap.from(".top-nav", { y: -50, opacity: 0, duration: 0.5 });
+                            gsap.from(".bottom-bar", { y: 50, opacity: 0, duration: 0.5 });
+                            gsap.from("#page-shop", { opacity: 0, scale: 0.9, duration: 0.5 });
                         }
                     });
                 }
             });
-
-            // Flottaison du logo splash
-            gsap.to(".splash-logo", { y: -15, duration: 2, repeat: -1, yoyo: true, ease: "power1.inOut" });
         });
 
-        function startShopAnimations() {
-            gsap.to("#mainLogo", { y: -8, duration: 2, repeat: -1, yoyo: true, ease: "power1.inOut" });
-            gsap.from(".price-card", { opacity: 0, x: -20, stagger: 0.1, duration: 0.6, ease: "power2.out" });
+        // PAGE SWITCHER
+        function switchPage(pageId) {
+            // Mise à jour de la nav
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => item.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
+            // Masquer les pages actuelles
+            const pages = document.querySelectorAll('.page');
+            const currentPage = document.querySelector('.page.active');
+            
+            if(`page-${pageId}` === currentPage.id) return; // Déjà sur la page
+
+            gsap.to(currentPage, { opacity: 0, y: 15, duration: 0.3, onComplete: () => {
+                currentPage.classList.remove('active');
+                
+                // Afficher nouvelle page
+                const nextPage = document.getElementById(`page-${pageId}`);
+                nextPage.classList.add('active');
+                gsap.fromTo(nextPage, { opacity: 0, y: -15 }, { opacity: 1, y: 0, duration: 0.4 });
+            }});
+        }
+
+        // ALERTE INSTALLATION
+        function showInstallAlert() {
+            tg.showAlert("POUR INSTALLER :\n\n1. Appuyez sur les 3 points (⋮) en haut à droite de Telegram.\n2. Sélectionnez 'Ajouter à l'écran d'accueil'.");
         }
     </script>
 </body>
 </html>
+
