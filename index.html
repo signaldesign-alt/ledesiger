@@ -30,12 +30,31 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:
 .bg-vibe{position:fixed;inset:0;z-index:-3;background:radial-gradient(circle at 50% -10%,#0f1a13,var(--bg) 60%);}
 .grain{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.035;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
 .glow{position:fixed;width:420px;height:420px;border-radius:50%;filter:blur(150px);pointer-events:none;z-index:-2;}
-.glow.g1{top:-120px;left:-100px;background:var(--neon);opacity:.14;}
-.glow.g2{bottom:-140px;right:-120px;background:var(--purple);opacity:.16;}
+.glow.g1{top:-120px;left:-100px;background:var(--neon);opacity:.14;animation:drift1 14s ease-in-out infinite;}
+.glow.g2{bottom:-140px;right:-120px;background:var(--purple);opacity:.16;animation:drift2 18s ease-in-out infinite;}
+.glow.g3{top:40%;left:30%;width:300px;height:300px;background:#ff1a35;opacity:.08;animation:drift3 20s ease-in-out infinite;}
+@keyframes drift1{0%,100%{transform:translate(0,0);}50%{transform:translate(70px,50px);}}
+@keyframes drift2{0%,100%{transform:translate(0,0);}50%{transform:translate(-60px,-70px);}}
+@keyframes drift3{0%,100%{transform:translate(0,0) scale(1);}50%{transform:translate(-40px,60px) scale(1.15);}}
+
+.particles{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden;}
+.particle{position:absolute;bottom:-10px;width:3px;height:3px;border-radius:50%;background:var(--neon);opacity:.5;box-shadow:0 0 6px var(--neon);animation:rise linear infinite;}
+@keyframes rise{0%{transform:translateY(0) translateX(0);opacity:0;}10%{opacity:.6;}90%{opacity:.4;}100%{transform:translateY(-110vh) translateX(20px);opacity:0;}}
+.particle:nth-child(1){left:8%;animation-duration:16s;animation-delay:0s;}
+.particle:nth-child(2){left:18%;animation-duration:22s;animation-delay:2s;background:var(--purple);box-shadow:0 0 6px var(--purple);}
+.particle:nth-child(3){left:30%;animation-duration:14s;animation-delay:5s;}
+.particle:nth-child(4){left:44%;animation-duration:19s;animation-delay:1s;background:#ff1a35;box-shadow:0 0 6px #ff1a35;}
+.particle:nth-child(5){left:58%;animation-duration:17s;animation-delay:4s;}
+.particle:nth-child(6){left:70%;animation-duration:21s;animation-delay:3s;background:var(--purple);box-shadow:0 0 6px var(--purple);}
+.particle:nth-child(7){left:82%;animation-duration:15s;animation-delay:6s;}
+.particle:nth-child(8){left:92%;animation-duration:20s;animation-delay:2.5s;background:#ff1a35;box-shadow:0 0 6px #ff1a35;}
+.particle:nth-child(9){left:50%;animation-duration:18s;animation-delay:7s;}
+.particle:nth-child(10){left:12%;animation-duration:23s;animation-delay:8s;background:var(--purple);box-shadow:0 0 6px var(--purple);}
 
 /* ---------- SPLASH ---------- */
 #splash{position:fixed;inset:0;z-index:10000;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;}
-.splash-logo{width:52%;max-width:180px;border-radius:50%;filter:drop-shadow(0 0 30px var(--neon)) drop-shadow(0 0 60px var(--purple));margin-bottom:20px;}
+.splash-logo{width:52%;max-width:180px;border-radius:50%;border:3px solid #ff1a35;box-shadow:0 0 22px #ff1a35, 0 0 50px rgba(255,26,53,.55), inset 0 0 18px rgba(255,26,53,.35);animation:redpulse 2.2s ease-in-out infinite;margin-bottom:20px;}
+@keyframes redpulse{0%,100%{box-shadow:0 0 22px #ff1a35, 0 0 50px rgba(255,26,53,.55), inset 0 0 18px rgba(255,26,53,.35);}50%{box-shadow:0 0 32px #ff1a35, 0 0 70px rgba(255,26,53,.75), inset 0 0 24px rgba(255,26,53,.5);}}
 .splash-name{font-family:'Syncopate';font-weight:700;font-size:1rem;letter-spacing:.35em;color:var(--neon);text-shadow:0 0 16px var(--neon);margin-bottom:22px;text-transform:uppercase;}
 .loader{width:180px;height:2px;background:rgba(255,255,255,.06);border-radius:10px;overflow:hidden;}
 .loader-fill{width:0%;height:100%;background:linear-gradient(90deg,var(--purple),var(--neon));box-shadow:0 0 14px var(--neon);}
@@ -55,10 +74,12 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:
 
 /* ---------- HOME HEADER ---------- */
 .brand-row{display:flex;justify-content:center;margin:6px 0 14px;position:relative;}
-.brand-badge{width:78px;height:78px;border-radius:50%;background:#0d0f14;border:1px solid var(--glass-brd);display:flex;align-items:center;justify-content:center;box-shadow:0 0 24px rgba(51,255,142,.18);overflow:hidden;}
+.brand-badge{width:78px;height:78px;border-radius:50%;background:#0d0f14;border:3px solid #ff1a35;display:flex;align-items:center;justify-content:center;box-shadow:0 0 18px #ff1a35, 0 0 40px rgba(255,26,53,.5);overflow:hidden;animation:redpulse 2.2s ease-in-out infinite;}
 .brand-badge img{width:100%;height:100%;object-fit:cover;}
 .lang-flag{position:absolute;right:0;top:14px;width:28px;height:20px;border-radius:4px;overflow:hidden;border:1px solid var(--glass-brd);}
 .lang-flag img{width:100%;height:100%;object-fit:cover;}
+.pal-flag{position:absolute;left:0;top:14px;width:28px;height:20px;border-radius:4px;overflow:hidden;border:1px solid var(--glass-brd);}
+.pal-flag img{width:100%;height:100%;object-fit:cover;}
 
 .greet-card{background:var(--glass);border:1px solid var(--glass-brd);border-radius:16px;padding:14px 16px;margin-bottom:12px;}
 .greet-card b{display:block;font-size:.95rem;margin-bottom:2px;}
@@ -73,6 +94,11 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:
 .filter-row{display:flex;gap:8px;margin-bottom:8px;}
 .filter-select{flex:1;background:var(--glass);border:1px solid var(--glass-brd);border-radius:12px;padding:10px 12px;font-size:.72rem;font-weight:600;color:var(--text);display:flex;align-items:center;justify-content:space-between;}
 .filter-select i{color:var(--muted);font-size:.7rem;}
+
+.notif-banner{position:relative;background:linear-gradient(120deg,rgba(255,26,53,.15),rgba(139,92,246,.15));border:1px solid #ff1a35;border-radius:14px;padding:12px 32px 12px 14px;margin-bottom:12px;}
+.notif-banner b{display:block;font-size:.8rem;color:#ff5a6e;margin-bottom:2px;}
+.notif-banner span{font-size:.72rem;color:var(--text);}
+.notif-close{position:absolute;top:8px;right:10px;color:var(--muted);font-size:.8rem;}
 
 .count-badge{display:inline-flex;align-items:center;gap:6px;background:var(--neon-dim);border:1px solid rgba(51,255,142,.35);color:var(--neon);font-size:.68rem;font-weight:700;padding:6px 12px;border-radius:20px;margin:6px 0 16px;}
 
@@ -224,6 +250,7 @@ footer{text-align:center;margin-top:24px;opacity:.3;font-size:.6rem;letter-spaci
 .admin-hint{font-size:.72rem;color:var(--muted);background:var(--glass);border:1px solid var(--glass-brd);border-radius:12px;padding:10px 12px;margin-bottom:16px;line-height:1.5;display:flex;gap:8px;align-items:flex-start;}
 .admin-hint i{color:var(--neon);margin-top:2px;}
 .admin-row{display:flex;align-items:center;gap:12px;background:var(--glass);border:1px solid var(--glass-brd);border-radius:14px;padding:10px;margin-bottom:10px;}
+.ar-icon{width:38px;height:38px;border-radius:10px;background:rgba(51,255,142,.1);display:flex;align-items:center;justify-content:center;color:var(--neon);font-size:1rem;flex:none;}
 .admin-row img{width:52px;height:52px;border-radius:10px;object-fit:cover;flex:none;}
 .admin-row .ar-info{flex:1;min-width:0;}
 .admin-row .ar-info b{font-size:.8rem;display:block;}
@@ -248,6 +275,11 @@ footer{text-align:center;margin-top:24px;opacity:.3;font-size:.6rem;letter-spaci
 <div class="grain"></div>
 <div class="glow g1"></div>
 <div class="glow g2"></div>
+<div class="glow g3"></div>
+<div class="particles">
+  <div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
+  <div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div>
+</div>
 
 <div id="splash">
   <img class="splash-logo" src="https://i.postimg.cc/ryCD92fb/2FAF5166-0940-4A99-AA93-B9016AE88778.png" alt="Logo">
@@ -265,14 +297,17 @@ footer{text-align:center;margin-top:24px;opacity:.3;font-size:.6rem;letter-spaci
 <div id="page-shop" class="page active">
   <div class="container">
     <div class="brand-row">
-      <div class="brand-badge"><img src="https://i.postimg.cc/ryCD92fb/2FAF5166-0940-4A99-AA93-B9016AE88778.png" alt="logo"></div>
+      <div class="brand-badge" onclick="secretTap()"><img src="https://i.postimg.cc/ryCD92fb/2FAF5166-0940-4A99-AA93-B9016AE88778.png" alt="logo"></div>
       <div class="lang-flag"><img src="https://flagcdn.com/w40/fr.png" alt="fr"></div>
+      <div class="pal-flag"><img src="https://flagcdn.com/w40/ps.png" alt="palestine"></div>
     </div>
 
     <div class="greet-card">
       <b>👋 Bonjour !</b>
       <span>Découvre notre sélection premium</span>
     </div>
+
+    <div id="notif-banner-zone"></div>
 
     <div class="search-row">
       <div class="search-box"><i class="fas fa-search"></i><input id="search-input" placeholder="Rechercher..." oninput="renderProducts()"></div>
@@ -308,7 +343,7 @@ footer{text-align:center;margin-top:24px;opacity:.3;font-size:.6rem;letter-spaci
         <div class="bar-row"><span>1</span><div class="bar-track"><div class="bar-fill" style="width:0%"></div></div><span>0</span></div>
       </div>
     </div>
-    <a class="leave-review-btn" href="https://t.me/babydriverss">Laisser un avis</a>
+    <a class="leave-review-btn" id="leave-review-link" href="https://t.me/babydriverss">Laisser un avis</a>
 
     <div class="review-card">
       <div class="review-top"><span class="review-name">Anonyme 🇫🇷</span><span style="font-size:.65rem;color:var(--muted)">Cette semaine</span></div>
@@ -341,7 +376,7 @@ footer{text-align:center;margin-top:24px;opacity:.3;font-size:.6rem;letter-spaci
 <div id="page-infos" class="page">
   <div class="container">
     <div class="promo-banner">
-      <div><b>🎁 -10% dès 2 commandes</b><br><span>Cumulable avec les packs VIP</span></div>
+      <div><b id="promo-title">🎁 -10% dès 2 commandes</b><br><span id="promo-sub">Cumulable avec les packs VIP</span></div>
     </div>
 
     <h2 class="cat-title">Paiements & Disponibilité</h2>
@@ -350,24 +385,24 @@ footer{text-align:center;margin-top:24px;opacity:.3;font-size:.6rem;letter-spaci
       <div class="pay-chip"><i class="fas fa-gift"></i>Paysafecard</div>
       <div class="pay-chip"><i class="fas fa-building-columns"></i>Virement</div>
     </div>
-    <div class="avail-badge"><span class="avail-dot"></span>Disponible 24h/24, 7j/7</div>
+    <div class="avail-badge"><span class="avail-dot"></span><span id="avail-text">Disponible 24h/24, 7j/7</span></div>
 
     <h2 class="cat-title">Livraison</h2>
     <div class="zone-card">
       <i class="fas fa-bolt"></i>
-      <b>Livraison numérique instantanée</b>
-      <span>Fichiers envoyés directement sur Telegram</span>
+      <b id="deliv-digital-title">Livraison numérique instantanée</b>
+      <span id="deliv-digital-sub">Fichiers envoyés directement sur Telegram</span>
     </div>
-    <div class="hours-row"><span>Impression / physique</span><b>48h – 72h</b></div>
-    <div class="hours-row"><span>1ère fournée de commandes</span><b>14h</b></div>
-    <div class="hours-row"><span>2ème fournée de commandes</span><b>19h</b></div>
+    <div class="hours-row"><span>Impression / physique</span><b id="print-delay">48h – 72h</b></div>
+    <div class="hours-row"><span>1ère fournée de commandes</span><b id="hour1">14h</b></div>
+    <div class="hours-row"><span>2ème fournée de commandes</span><b id="hour2">19h</b></div>
 
     <h2 class="cat-title">Réseaux & Contact</h2>
     <div class="social-grid">
-      <a href="https://t.me/babydriverss" class="social-btn link-tg"><i class="fab fa-telegram-plane"></i>Telegram</a>
-      <a href="https://wa.me/33748423287" class="social-btn link-wa"><i class="fab fa-whatsapp"></i>WhatsApp</a>
-      <a href="#" class="social-btn link-ig"><i class="fab fa-instagram"></i>Instagram</a>
-      <a href="#" class="social-btn link-tt"><i class="fab fa-tiktok"></i>TikTok</a>
+      <a href="https://t.me/babydriverss" id="social-tg" class="social-btn link-tg"><i class="fab fa-telegram-plane"></i>Telegram</a>
+      <a href="https://wa.me/33748423287" id="social-wa" class="social-btn link-wa"><i class="fab fa-whatsapp"></i>WhatsApp</a>
+      <a href="#" id="social-ig" class="social-btn link-ig"><i class="fab fa-instagram"></i>Instagram</a>
+      <a href="#" id="social-tt" class="social-btn link-tt"><i class="fab fa-tiktok"></i>TikTok</a>
     </div>
     <footer>© LE DESIGNER</footer>
   </div>
@@ -382,7 +417,6 @@ footer{text-align:center;margin-top:24px;opacity:.3;font-size:.6rem;letter-spaci
     <div class="profil-row" onclick="switchPage('avis', document.querySelectorAll('.nav-item')[1])"><i class="fas fa-star"></i>Mes avis</div>
     <div class="profil-row"><i class="fas fa-heart"></i>Mes favoris</div>
     <div class="profil-row" onclick="switchPage('infos', document.querySelectorAll('.nav-item')[3])"><i class="fas fa-circle-info"></i>Infos & contact</div>
-    <div class="profil-row" onclick="openAdmin()" style="border-color:var(--neon);"><i class="fas fa-images"></i>Gérer mes images & vidéos</div>
     <footer>© LE DESIGNER</footer>
   </div>
 </div>
@@ -413,22 +447,14 @@ footer{text-align:center;margin-top:24px;opacity:.3;font-size:.6rem;letter-spaci
       <div class="qty-total" id="d-total">0€</div>
     </div>
 
-    <div class="section-label"><i class="fas fa-truck"></i>Mode de livraison</div>
-    <div class="deliv-grid">
-      <div class="deliv-card sel" id="deliv-num" onclick="selectDeliv('num')">
-        <i class="fas fa-bolt"></i><b>Numérique</b><span>Envoi Telegram</span>
-      </div>
-      <div class="deliv-card" id="deliv-phy" onclick="selectDeliv('phy')">
-        <i class="fas fa-box"></i><b>Impression</b><span>Livraison 48-72h</span>
-      </div>
-    </div>
+    <a href="#" id="d-catalog-link" class="hero-btn" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-bottom:22px;"><i class="fas fa-images"></i>Voir le catalogue officiel</a>
 
     <div class="section-label"><i class="fas fa-compass"></i>À découvrir</div>
     <div class="discover-scroll" id="discover-zone"></div>
   </div>
   <div class="detail-bottom">
     <div class="add-cart-btn" id="add-cart-btn" onclick="addToCart()">Ajouter au panier</div>
-    <a href="https://t.me/babydriverss" class="send-btn" target="_blank"><i class="fas fa-paper-plane"></i></a>
+    <a href="https://t.me/babydriverss" id="d-send-btn" class="send-btn" target="_blank"><i class="fas fa-paper-plane"></i></a>
   </div>
 </div>
 
@@ -439,14 +465,110 @@ footer{text-align:center;margin-top:24px;opacity:.3;font-size:.6rem;letter-spaci
     <div style="font-size:.78rem;color:var(--muted);">Espace perso · Visuels</div>
   </div>
 
-  <div id="admin-list-view" class="detail-body">
-    <div class="admin-hint"><i class="fas fa-circle-info"></i> Modifie les photos ou la vidéo de chaque produit. Colle un lien direct (image/.mp4) ou importe un fichier depuis ton téléphone.</div>
+  <div id="admin-lock-view" class="detail-body">
+    <div class="hero-page" style="min-height:50vh;">
+      <i class="fas fa-lock hero-icon" style="color:#ff1a35;filter:drop-shadow(0 0 20px #ff1a35);"></i>
+      <div class="hero-text">Cet espace est protégé.<br>Entre ton <b>code d'accès</b> pour continuer.</div>
+      <input id="admin-code-input" class="admin-input" type="password" placeholder="Code d'accès" style="text-align:center;max-width:220px;margin-bottom:10px;" onkeydown="if(event.key==='Enter')checkAdminCode();">
+      <div id="admin-lock-error" style="display:none;color:#ff1a35;font-size:.72rem;margin-bottom:12px;">Code incorrect</div>
+      <div class="hero-btn" onclick="checkAdminCode()">Déverrouiller</div>
+    </div>
+  </div>
+
+  <div id="admin-list-view" class="detail-body" style="display:none;">
+    <div class="admin-hint"><i class="fas fa-circle-info"></i> Espace perso — modifie ta boutique sans passer par le code.</div>
+
+    <div class="admin-row" onclick="openAdminInfos()">
+      <div class="ar-icon"><i class="fas fa-circle-info"></i></div>
+      <div class="ar-info"><b>Infos boutique & livraison</b><span>Disponibilité, délais, promo</span></div>
+      <div class="ar-edit">Modifier</div>
+    </div>
+    <div class="admin-row" onclick="openAdminSocial()">
+      <div class="ar-icon"><i class="fas fa-share-nodes"></i></div>
+      <div class="ar-info"><b>Réseaux & liens</b><span>Telegram, WhatsApp, Instagram, TikTok</span></div>
+      <div class="ar-edit">Modifier</div>
+    </div>
+    <div class="admin-row" onclick="openAdminNotif()">
+      <div class="ar-icon"><i class="fas fa-bullhorn"></i></div>
+      <div class="ar-info"><b>Notification promo / événement</b><span id="notif-status-label">Désactivée</span></div>
+      <div class="ar-edit">Modifier</div>
+    </div>
+
+    <h2 class="cat-title" style="margin-top:24px;">Produits</h2>
+    <div class="admin-hint"><i class="fas fa-circle-info"></i> Modifie le titre, le prix, la description, les photos ou la vidéo de chaque produit.</div>
     <div id="admin-list"></div>
+  </div>
+
+  <div id="admin-infos-view" class="detail-body" style="display:none;">
+    <div class="back-btn" style="margin-bottom:14px;" onclick="showAdminList()"><i class="fas fa-arrow-left"></i></div>
+    <span class="detail-name">Infos boutique & livraison</span>
+
+    <div class="section-label" style="margin-top:16px;">Bannière promo</div>
+    <input id="ai-promoTitle" class="admin-input" placeholder="Titre (ex: 🎁 -10% dès 2 commandes)" style="margin-bottom:8px;">
+    <input id="ai-promoSub" class="admin-input" placeholder="Sous-texte">
+
+    <div class="section-label" style="margin-top:18px;">Disponibilité</div>
+    <input id="ai-availability" class="admin-input" placeholder="Ex: Disponible 24h/24, 7j/7">
+
+    <div class="section-label" style="margin-top:18px;">Livraison numérique</div>
+    <input id="ai-deliveryDigitalTitle" class="admin-input" placeholder="Titre" style="margin-bottom:8px;">
+    <input id="ai-deliveryDigitalSub" class="admin-input" placeholder="Sous-texte">
+
+    <div class="section-label" style="margin-top:18px;">Délais</div>
+    <input id="ai-printDelay" class="admin-input" placeholder="Délai impression (ex: 48h - 72h)" style="margin-bottom:8px;">
+    <input id="ai-hour1" class="admin-input" placeholder="1ère fournée (ex: 14h)" style="margin-bottom:8px;">
+    <input id="ai-hour2" class="admin-input" placeholder="2ème fournée (ex: 19h)">
+
+    <div class="add-cart-btn" style="margin-top:24px;" onclick="saveAdminInfos()">Enregistrer</div>
+  </div>
+
+  <div id="admin-social-view" class="detail-body" style="display:none;">
+    <div class="back-btn" style="margin-bottom:14px;" onclick="showAdminList()"><i class="fas fa-arrow-left"></i></div>
+    <span class="detail-name">Réseaux & liens</span>
+
+    <div class="section-label" style="margin-top:16px;">Telegram (contact & commandes)</div>
+    <input id="as-telegram" class="admin-input" placeholder="https://t.me/tonpseudo" style="margin-bottom:14px;">
+    <div class="section-label">WhatsApp</div>
+    <input id="as-whatsapp" class="admin-input" placeholder="https://wa.me/33..." style="margin-bottom:14px;">
+    <div class="section-label">Instagram</div>
+    <input id="as-instagram" class="admin-input" placeholder="https://instagram.com/..." style="margin-bottom:14px;">
+    <div class="section-label">TikTok</div>
+    <input id="as-tiktok" class="admin-input" placeholder="https://tiktok.com/@..." style="margin-bottom:14px;">
+    <div class="section-label">Catalogue officiel Telegram</div>
+    <input id="as-catalog" class="admin-input" placeholder="https://t.me/+...">
+
+    <div class="add-cart-btn" style="margin-top:24px;" onclick="saveAdminSocial()">Enregistrer</div>
+  </div>
+
+  <div id="admin-notif-view" class="detail-body" style="display:none;">
+    <div class="back-btn" style="margin-bottom:14px;" onclick="showAdminList()"><i class="fas fa-arrow-left"></i></div>
+    <span class="detail-name">Notification promo / événement</span>
+
+    <div class="deliv-grid" style="margin-top:16px;">
+      <div class="deliv-card" id="an-off" onclick="setNotifActive(false)"><i class="fas fa-bell-slash"></i><b>Désactivée</b></div>
+      <div class="deliv-card" id="an-on" onclick="setNotifActive(true)"><i class="fas fa-bell"></i><b>Active</b></div>
+    </div>
+
+    <div class="section-label" style="margin-top:18px;">Titre</div>
+    <input id="an-title" class="admin-input" placeholder="Ex: 🔥 Promo du week-end" style="margin-bottom:14px;">
+    <div class="section-label">Message</div>
+    <input id="an-message" class="admin-input" placeholder="Ex: -15% sur tous les packs jusqu'à dimanche">
+
+    <div class="add-cart-btn" style="margin-top:24px;" onclick="saveAdminNotif()">Enregistrer</div>
   </div>
 
   <div id="admin-edit-view" class="detail-body" style="display:none;">
     <div class="back-btn" style="margin-bottom:14px;" onclick="showAdminList()"><i class="fas fa-arrow-left"></i></div>
     <span class="detail-name" id="admin-edit-name"></span>
+
+    <div class="section-label" style="margin-top:16px;"><i class="fas fa-pen"></i>Titre du produit</div>
+    <input id="admin-name-input" class="admin-input" placeholder="Nom du produit" style="margin-bottom:14px;">
+
+    <div class="section-label"><i class="fas fa-tag"></i>Prix</div>
+    <input id="admin-price-input" class="admin-input" placeholder="Prix en € (laisse vide pour 'Sur devis')" inputmode="decimal" style="margin-bottom:14px;">
+
+    <div class="section-label"><i class="fas fa-align-left"></i>Description</div>
+    <textarea id="admin-desc-input" class="admin-input" rows="3" placeholder="Description du produit" style="width:100%;resize:vertical;margin-bottom:8px;font-family:'Rajdhani';"></textarea>
 
     <div class="section-label" style="margin-top:16px;"><i class="fas fa-images"></i>Photos</div>
     <div class="admin-img-grid" id="admin-img-grid"></div>
@@ -484,7 +606,61 @@ const tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp 
   showAlert(msg){ alert(msg.replace(/\\n/g,"\n")); }
 };
 try{ tg.expand(); tg.headerColor = "#07080b"; }catch(e){}
-const ORDER_LINK = "https://t.me/babydriverss";
+let ORDER_LINK = "https://t.me/babydriverss";
+let CATALOG_LINK = "https://t.me/+7RMihQjWOGlmNjU8";
+function trackEvent(){ /* emplacement réservé pour de futures statistiques */ }
+
+/* ---------------- INFOS BOUTIQUE / RÉSEAUX (modifiables depuis l'espace perso) ---------------- */
+const SITE_INFO_DEFAULTS = {
+  promoTitle:"🎁 -10% dès 2 commandes",
+  promoSub:"Cumulable avec les packs VIP",
+  availability:"Disponible 24h/24, 7j/7",
+  deliveryDigitalTitle:"Livraison numérique instantanée",
+  deliveryDigitalSub:"Fichiers envoyés directement sur Telegram",
+  printDelay:"48h – 72h",
+  hour1:"14h",
+  hour2:"19h",
+  telegram:"https://t.me/babydriverss",
+  whatsapp:"https://wa.me/33748423287",
+  instagram:"#",
+  tiktok:"#",
+  catalog:"https://t.me/+7RMihQjWOGlmNjU8"
+};
+let SITE_INFO = {...SITE_INFO_DEFAULTS};
+let NOTIF = {active:false, title:"", message:""};
+
+function applySiteInfoToDOM(){
+  ORDER_LINK = SITE_INFO.telegram;
+  CATALOG_LINK = SITE_INFO.catalog;
+  document.getElementById('promo-title').textContent = SITE_INFO.promoTitle;
+  document.getElementById('promo-sub').textContent = SITE_INFO.promoSub;
+  document.getElementById('avail-text').textContent = SITE_INFO.availability;
+  document.getElementById('deliv-digital-title').textContent = SITE_INFO.deliveryDigitalTitle;
+  document.getElementById('deliv-digital-sub').textContent = SITE_INFO.deliveryDigitalSub;
+  document.getElementById('print-delay').textContent = SITE_INFO.printDelay;
+  document.getElementById('hour1').textContent = SITE_INFO.hour1;
+  document.getElementById('hour2').textContent = SITE_INFO.hour2;
+  document.getElementById('social-tg').href = SITE_INFO.telegram;
+  document.getElementById('social-wa').href = SITE_INFO.whatsapp;
+  document.getElementById('social-ig').href = SITE_INFO.instagram;
+  document.getElementById('social-tt').href = SITE_INFO.tiktok;
+  document.getElementById('leave-review-link').href = SITE_INFO.telegram;
+  renderNotifBanner();
+}
+function renderNotifBanner(){
+  const zone = document.getElementById('notif-banner-zone');
+  if(!zone) return;
+  if(NOTIF.active && (NOTIF.title || NOTIF.message)){
+    zone.innerHTML = `
+      <div class="notif-banner">
+        <div class="notif-close" onclick="document.getElementById('notif-banner-zone').innerHTML=''">✕</div>
+        <b>${NOTIF.title}</b>
+        <span>${NOTIF.message}</span>
+      </div>`;
+  } else {
+    zone.innerHTML = '';
+  }
+}
 
 /* ---------------- PRODUCT DATA ----------------
    Remplace "images" par tes vraies photos et "video" par ton propre lien .mp4 */
@@ -550,7 +726,7 @@ let sortMode = 0; // 0 default, 1 asc, 2 desc
 const SORT_LABELS = ["Prix : défaut","Prix : croissant","Prix : décroissant"];
 let favOnly = false;
 const favorites = new Set();
-let cart = []; // {id, qty, deliv}
+let cart = []; // {id, qty}
 
 function priceLabel(p){ return p.price===null ? "Sur devis" : p.price+"€"; }
 
@@ -628,6 +804,8 @@ function renderProducts(){
 }
 renderProducts();
 loadMediaOverrides();
+applySiteInfoToDOM();
+loadSiteOverrides();
 
 /* ---------------- TOAST ---------------- */
 function showToast(msg){
@@ -650,7 +828,8 @@ function quickAdd(id, ev){
   const p = PRODUCTS.find(x=>x.id===id);
   if(p.price===null){ showToast("Demande un devis pour ce produit"); return; }
   const existing = cart.find(c=>c.id===id);
-  if(existing) existing.qty++; else cart.push({id, qty:1, deliv:'num'});
+  if(existing) existing.qty++; else cart.push({id, qty:1});
+  trackEvent('addToCart', id);
   updateCartBadge();
   if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
   showToast(p.name+" ajouté au panier");
@@ -659,12 +838,12 @@ function quickAdd(id, ev){
 /* ---------------- PRODUCT DETAIL ---------------- */
 let currentProduct = null;
 let currentQty = 1;
-let currentDeliv = 'num';
 
 function openDetail(id){
   const p = PRODUCTS.find(x=>x.id===id);
   if(!p) return;
-  currentProduct = p; currentQty = 1; currentDeliv = 'num';
+  currentProduct = p; currentQty = 1;
+  trackEvent('productView', p.id);
 
   const track = document.getElementById('dg-track');
   const dots = document.getElementById('dg-dots');
@@ -685,7 +864,8 @@ function openDetail(id){
   document.getElementById('d-desc').textContent = p.desc;
   document.getElementById('d-qty').textContent = currentQty;
   updateDetailTotal();
-  selectDeliv('num');
+  document.getElementById('d-catalog-link').href = CATALOG_LINK;
+  document.getElementById('d-send-btn').href = `${ORDER_LINK}?text=${encodeURIComponent("Bonjour, une question sur : "+p.name)}`;
 
   const others = PRODUCTS.filter(x=>x.id!==p.id && x.cat===p.cat).slice(0,6);
   document.getElementById('discover-zone').innerHTML = others.map(o=>`
@@ -712,17 +892,17 @@ function updateDetailTotal(){
   const p = currentProduct;
   document.getElementById('d-total').textContent = p.price===null ? "Sur devis" : (p.price*currentQty)+"€";
 }
-function selectDeliv(mode){
-  currentDeliv = mode;
-  document.getElementById('deliv-num').classList.toggle('sel', mode==='num');
-  document.getElementById('deliv-phy').classList.toggle('sel', mode==='phy');
-}
 function addToCart(){
   const p = currentProduct;
-  if(p.price===null){ window.open(ORDER_LINK,'_blank'); return; }
-  const existing = cart.find(c=>c.id===p.id && c.deliv===currentDeliv);
-  if(existing) existing.qty += currentQty; else cart.push({id:p.id, qty:currentQty, deliv:currentDeliv});
+  if(p.price===null){
+    const msg = `Bonjour, je souhaite un devis pour : ${p.name}`;
+    window.open(`${ORDER_LINK}?text=${encodeURIComponent(msg)}`,'_blank');
+    return;
+  }
+  const existing = cart.find(c=>c.id===p.id);
+  if(existing) existing.qty += currentQty; else cart.push({id:p.id, qty:currentQty});
   updateCartBadge();
+  trackEvent('addToCart', p.id);
   if(tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
   showToast(p.name+" ajouté au panier");
   closeDetail();
@@ -746,7 +926,7 @@ function renderCart(){
       <img src="${p.images[0]}">
       <div class="cart-info">
         <b>${p.name}</b>
-        <span>${c_.deliv==='num'?'Numérique':'Impression'} · ${p.price}€/u</span>
+        <span>${p.price}€/u</span>
       </div>
       <div class="cart-qty">
         <button onclick="cartChangeQty(${i},-1)">−</button>
@@ -757,8 +937,28 @@ function renderCart(){
     </div>`;
   });
   html += `<div class="cart-total-row"><span style="color:var(--text);font-family:'Rajdhani';font-size:.85rem;">Total</span><span>${total}€</span></div>`;
-  html += `<a class="checkout-btn" href="${ORDER_LINK}" target="_blank" onclick="if(tg.HapticFeedback)tg.HapticFeedback.notificationOccurred('success');">Commander sur Telegram</a>`;
+  html += `<div class="checkout-btn" onclick="goToCheckout()">Commander sur Telegram</div>`;
+  html += `<div style="text-align:center;font-size:.66rem;color:var(--muted);margin-top:8px;">Le récapitulatif de commande est généré automatiquement et pré-rempli dans le message</div>`;
   c.innerHTML = html;
+}
+function buildOrderSummary(){
+  let lines = ["🛒 Nouvelle commande — Le Designer Shop", ""];
+  let total = 0;
+  cart.forEach(c_=>{
+    const p = PRODUCTS.find(x=>x.id===c_.id);
+    const lineTotal = p.price*c_.qty;
+    total += lineTotal;
+    lines.push(`• ${p.name} x${c_.qty} — ${lineTotal}€`);
+  });
+  lines.push("", `Total : ${total}€`, "", "Merci de me confirmer la commande 🙏");
+  return lines.join("\n");
+}
+function goToCheckout(){
+  if(!cart.length) return;
+  trackEvent('checkout', null, cart.reduce((s,c)=>s+c.qty,0));
+  const text = buildOrderSummary();
+  if(tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+  window.open(`${ORDER_LINK}?text=${encodeURIComponent(text)}`, '_blank');
 }
 function cartChangeQty(i, delta){
   cart[i].qty += delta;
@@ -773,9 +973,24 @@ function cartRemove(i){
 }
 
 /* ---------------- ESPACE PERSO : GESTION IMAGES/VIDÉOS ---------------- */
-const DEFAULTS = PRODUCTS.map(p=>({id:p.id, images:[...p.images], video:p.video}));
+const DEFAULTS = PRODUCTS.map(p=>({id:p.id, name:p.name, price:p.price, desc:p.desc, images:[...p.images], video:p.video}));
 let adminEditId = null;
 let adminEditImages = [];
+let adminUnlocked = false;
+const ADMIN_CODE = "Scherazade4444"; // <- change ce code ici si besoin
+
+function checkAdminCode(){
+  const val = document.getElementById('admin-code-input').value.trim();
+  if(val === ADMIN_CODE){
+    adminUnlocked = true;
+    document.getElementById('admin-code-input').value = '';
+    document.getElementById('admin-lock-error').style.display = 'none';
+    showAdminList();
+  } else {
+    document.getElementById('admin-lock-error').style.display = 'block';
+    if(tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
+  }
+}
 
 function hasStorage(){ return typeof window.storage !== 'undefined' && window.storage; }
 
@@ -788,8 +1003,12 @@ async function loadMediaOverrides(){
       Object.keys(overrides).forEach(id=>{
         const p = PRODUCTS.find(x=>x.id===id);
         if(p){
-          if(overrides[id].images && overrides[id].images.length) p.images = overrides[id].images;
-          if('video' in overrides[id]) p.video = overrides[id].video;
+          const o = overrides[id];
+          if(o.name) p.name = o.name;
+          if('price' in o) p.price = o.price;
+          if(o.desc) p.desc = o.desc;
+          if(o.images && o.images.length) p.images = o.images;
+          if('video' in o) p.video = o.video;
         }
       });
       renderProducts();
@@ -797,10 +1016,26 @@ async function loadMediaOverrides(){
   }catch(e){ /* pas encore d'overrides enregistrés */ }
 }
 
+let secretTapCount = 0;
+let secretTapTimer = null;
+function secretTap(){
+  secretTapCount++;
+  clearTimeout(secretTapTimer);
+  secretTapTimer = setTimeout(()=>{ secretTapCount = 0; }, 1500);
+  if(secretTapCount >= 5){
+    secretTapCount = 0;
+    openAdmin();
+  }
+}
 function openAdmin(){
   document.getElementById('admin-page').style.display='block';
   gsap.fromTo('#admin-page', {x:"100%"}, {x:"0%", duration:0.35, ease:"power3.out"});
-  showAdminList();
+  if(adminUnlocked) showAdminList();
+  else{
+    document.getElementById('admin-lock-view').style.display='block';
+    document.getElementById('admin-list-view').style.display='none';
+    document.getElementById('admin-edit-view').style.display='none';
+  }
 }
 function closeAdmin(){
   gsap.to('#admin-page', {x:"100%", duration:0.3, ease:"power3.in", onComplete:()=>{
@@ -808,9 +1043,112 @@ function closeAdmin(){
   }});
 }
 function showAdminList(){
+  document.getElementById('admin-lock-view').style.display='none';
   document.getElementById('admin-list-view').style.display='block';
   document.getElementById('admin-edit-view').style.display='none';
+  document.getElementById('admin-infos-view').style.display='none';
+  document.getElementById('admin-social-view').style.display='none';
+  document.getElementById('admin-notif-view').style.display='none';
+  document.getElementById('notif-status-label').textContent = NOTIF.active ? 'Active' : 'Désactivée';
   renderAdminList();
+}
+
+/* ---- Infos boutique & livraison ---- */
+function openAdminInfos(){
+  document.getElementById('ai-promoTitle').value = SITE_INFO.promoTitle;
+  document.getElementById('ai-promoSub').value = SITE_INFO.promoSub;
+  document.getElementById('ai-availability').value = SITE_INFO.availability;
+  document.getElementById('ai-deliveryDigitalTitle').value = SITE_INFO.deliveryDigitalTitle;
+  document.getElementById('ai-deliveryDigitalSub').value = SITE_INFO.deliveryDigitalSub;
+  document.getElementById('ai-printDelay').value = SITE_INFO.printDelay;
+  document.getElementById('ai-hour1').value = SITE_INFO.hour1;
+  document.getElementById('ai-hour2').value = SITE_INFO.hour2;
+  document.getElementById('admin-list-view').style.display='none';
+  document.getElementById('admin-infos-view').style.display='block';
+}
+async function saveAdminInfos(){
+  SITE_INFO.promoTitle = document.getElementById('ai-promoTitle').value.trim() || SITE_INFO_DEFAULTS.promoTitle;
+  SITE_INFO.promoSub = document.getElementById('ai-promoSub').value.trim() || SITE_INFO_DEFAULTS.promoSub;
+  SITE_INFO.availability = document.getElementById('ai-availability').value.trim() || SITE_INFO_DEFAULTS.availability;
+  SITE_INFO.deliveryDigitalTitle = document.getElementById('ai-deliveryDigitalTitle').value.trim() || SITE_INFO_DEFAULTS.deliveryDigitalTitle;
+  SITE_INFO.deliveryDigitalSub = document.getElementById('ai-deliveryDigitalSub').value.trim() || SITE_INFO_DEFAULTS.deliveryDigitalSub;
+  SITE_INFO.printDelay = document.getElementById('ai-printDelay').value.trim() || SITE_INFO_DEFAULTS.printDelay;
+  SITE_INFO.hour1 = document.getElementById('ai-hour1').value.trim() || SITE_INFO_DEFAULTS.hour1;
+  SITE_INFO.hour2 = document.getElementById('ai-hour2').value.trim() || SITE_INFO_DEFAULTS.hour2;
+  applySiteInfoToDOM();
+  await persistSiteInfo();
+  showToast("Infos enregistrées ✓");
+  showAdminList();
+}
+
+/* ---- Réseaux & liens ---- */
+function openAdminSocial(){
+  document.getElementById('as-telegram').value = SITE_INFO.telegram;
+  document.getElementById('as-whatsapp').value = SITE_INFO.whatsapp;
+  document.getElementById('as-instagram').value = SITE_INFO.instagram;
+  document.getElementById('as-tiktok').value = SITE_INFO.tiktok;
+  document.getElementById('as-catalog').value = SITE_INFO.catalog;
+  document.getElementById('admin-list-view').style.display='none';
+  document.getElementById('admin-social-view').style.display='block';
+}
+async function saveAdminSocial(){
+  SITE_INFO.telegram = document.getElementById('as-telegram').value.trim() || SITE_INFO_DEFAULTS.telegram;
+  SITE_INFO.whatsapp = document.getElementById('as-whatsapp').value.trim() || SITE_INFO_DEFAULTS.whatsapp;
+  SITE_INFO.instagram = document.getElementById('as-instagram').value.trim() || '#';
+  SITE_INFO.tiktok = document.getElementById('as-tiktok').value.trim() || '#';
+  SITE_INFO.catalog = document.getElementById('as-catalog').value.trim() || SITE_INFO_DEFAULTS.catalog;
+  applySiteInfoToDOM();
+  await persistSiteInfo();
+  showToast("Réseaux enregistrés ✓");
+  showAdminList();
+}
+
+/* ---- Notification promo ---- */
+function openAdminNotif(){
+  setNotifActive(NOTIF.active, true);
+  document.getElementById('an-title').value = NOTIF.title;
+  document.getElementById('an-message').value = NOTIF.message;
+  document.getElementById('admin-list-view').style.display='none';
+  document.getElementById('admin-notif-view').style.display='block';
+}
+function setNotifActive(active, skipRender){
+  NOTIF.active = active;
+  document.getElementById('an-on').classList.toggle('sel', active);
+  document.getElementById('an-off').classList.toggle('sel', !active);
+  if(!skipRender) renderNotifBanner();
+}
+async function saveAdminNotif(){
+  NOTIF.title = document.getElementById('an-title').value.trim();
+  NOTIF.message = document.getElementById('an-message').value.trim();
+  renderNotifBanner();
+  if(hasStorage()){
+    try{ await window.storage.set('notif-override', JSON.stringify(NOTIF), false); }catch(e){}
+  }
+  showToast("Notification enregistrée ✓");
+  showAdminList();
+}
+
+/* ---- chargement des overrides site/réseaux/notif ---- */
+async function loadSiteOverrides(){
+  if(!hasStorage()) return;
+  try{
+    const res = await window.storage.get('site-content-overrides', false);
+    if(res && res.value){
+      Object.assign(SITE_INFO, JSON.parse(res.value));
+      applySiteInfoToDOM();
+    }
+  }catch(e){}
+  try{
+    const res2 = await window.storage.get('notif-override', false);
+    if(res2 && res2.value){
+      Object.assign(NOTIF, JSON.parse(res2.value));
+      renderNotifBanner();
+    }
+  }catch(e){}
+}
+async function persistSiteInfo(){
+  if(!hasStorage()) return;
+  try{ await window.storage.set('site-content-overrides', JSON.stringify(SITE_INFO), false); }catch(e){}
 }
 function renderAdminList(){
   const list = document.getElementById('admin-list');
@@ -826,6 +1164,9 @@ function openAdminEdit(id){
   adminEditId = id;
   adminEditImages = [...p.images];
   document.getElementById('admin-edit-name').textContent = p.name;
+  document.getElementById('admin-name-input').value = p.name;
+  document.getElementById('admin-price-input').value = p.price===null ? '' : p.price;
+  document.getElementById('admin-desc-input').value = p.desc;
   document.getElementById('admin-video-url').value = p.video || '';
   document.getElementById('admin-img-url').value = '';
   renderAdminImgGrid();
@@ -872,7 +1213,14 @@ function handleImageUpload(ev){
 }
 async function saveAdminEdit(){
   const p = PRODUCTS.find(x=>x.id===adminEditId);
+  const nameVal = document.getElementById('admin-name-input').value.trim();
+  const priceRaw = document.getElementById('admin-price-input').value.trim();
+  const descVal = document.getElementById('admin-desc-input').value.trim();
   const videoVal = document.getElementById('admin-video-url').value.trim();
+
+  if(nameVal) p.name = nameVal;
+  p.price = priceRaw==='' ? null : parseFloat(priceRaw.replace(',','.'));
+  if(descVal) p.desc = descVal;
   p.images = adminEditImages.length ? [...adminEditImages] : p.images;
   p.video = videoVal || null;
 
@@ -887,10 +1235,10 @@ async function saveAdminEdit(){
       const res = await window.storage.get('product-media-overrides', false);
       if(res && res.value) overrides = JSON.parse(res.value);
     }catch(e){}
-    overrides[adminEditId] = {images:p.images, video:p.video};
+    overrides[adminEditId] = {name:p.name, price:p.price, desc:p.desc, images:p.images, video:p.video};
     const result = await window.storage.set('product-media-overrides', JSON.stringify(overrides), false);
     if(!result){ showToast("Erreur d'enregistrement"); return; }
-    showToast("Visuels enregistrés ✓");
+    showToast("Produit enregistré ✓");
   }catch(e){
     showToast("Erreur d'enregistrement");
   }
@@ -900,6 +1248,9 @@ async function saveAdminEdit(){
 async function resetAdminEdit(){
   const def = DEFAULTS.find(x=>x.id===adminEditId);
   const p = PRODUCTS.find(x=>x.id===adminEditId);
+  p.name = def.name;
+  p.price = def.price;
+  p.desc = def.desc;
   p.images = [...def.images];
   p.video = def.video;
   if(hasStorage()){
