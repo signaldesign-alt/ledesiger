@@ -306,7 +306,7 @@ footer{text-align:center;margin-top:24px;opacity:.3;font-size:.6rem;letter-spaci
     </div>
 
     <div class="greet-card">
-      <b>👋 Bonjour !</b>
+      <b id="greet-name">👋 Bonjour !</b>
       <span>Découvre notre sélection premium</span>
     </div>
 
@@ -414,8 +414,8 @@ footer{text-align:center;margin-top:24px;opacity:.3;font-size:.6rem;letter-spaci
 <!-- ============ PROFIL ============ -->
 <div id="page-profil" class="page">
   <div class="container">
-    <div class="profil-avatar">🖤</div>
-    <div style="text-align:center;font-weight:700;margin-bottom:16px;">Client Le Designer</div>
+    <div class="profil-avatar" id="profil-avatar">🖤</div>
+    <div style="text-align:center;font-weight:700;margin-bottom:16px;" id="profil-name">Client Le Designer</div>
     <div class="profil-row" onclick="switchPage('panier', document.querySelectorAll('.nav-item')[2])"><i class="fas fa-bag-shopping"></i>Mon panier</div>
     <div class="profil-row" onclick="switchPage('avis', document.querySelectorAll('.nav-item')[1])"><i class="fas fa-star"></i>Mes avis</div>
     <div class="profil-row"><i class="fas fa-heart"></i>Mes favoris</div>
@@ -612,7 +612,32 @@ const tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp 
 try{ tg.expand(); tg.headerColor = "#07080b"; }catch(e){}
 let ORDER_LINK = "https://t.me/babydriverss";
 let CATALOG_LINK = "https://t.me/+7RMihQjWOGlmNjU8";
-function trackEvent(){ /* emplacement réservé pour de futures statistiques */ }
+
+/* ---------------- PROFIL TELEGRAM ---------------- */
+const tgUser = (tg.initDataUnsafe && tg.initDataUnsafe.user) ? tg.initDataUnsafe.user : null;
+function applyTelegramIdentity(){
+  const greetEl = document.getElementById('greet-name');
+  const avatarEl = document.getElementById('profil-avatar');
+  const nameEl = document.getElementById('profil-name');
+  if(tgUser){
+    if(greetEl) greetEl.textContent = `👋 Bonjour ${tgUser.first_name} !`;
+    if(nameEl) nameEl.textContent = tgUser.username ? `@${tgUser.username}` : tgUser.first_name;
+    if(avatarEl) avatarEl.textContent = (tgUser.first_name||'?').charAt(0).toUpperCase();
+  }
+}
+function trackEvent(type, cartSnapshot, totalItems){
+  if(type !== 'checkout' || !hasStorage()) return;
+  const order = {
+    createdAt: new Date().toISOString(),
+    customer: tgUser ? {id:tgUser.id, firstName:tgUser.first_name, username:tgUser.username||null} : null,
+    items: cart.map(c_=>{
+      const p = PRODUCTS.find(x=>x.id===c_.id);
+      return {id:c_.id, name:p.name, qty:c_.qty, price:p.price, deliv:c_.deliv};
+    }),
+    total: cart.reduce((s,c_)=>{ const p=PRODUCTS.find(x=>x.id===c_.id); return s + p.price*c_.qty; },0)
+  };
+  try{ fbDb.collection('orders').add(order); }catch(e){ /* silencieux, ne bloque pas la commande */ }
+}
 
 /* ---------------- INFOS BOUTIQUE / RÉSEAUX (modifiables depuis l'espace perso) ---------------- */
 const SITE_INFO_DEFAULTS = {
@@ -810,6 +835,7 @@ renderProducts();
 loadMediaOverrides();
 applySiteInfoToDOM();
 loadSiteOverrides();
+applyTelegramIdentity();
 
 /* ---------------- TOAST ---------------- */
 function showToast(msg){
