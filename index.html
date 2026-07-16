@@ -6,6 +6,9 @@
 <title>LE DESIGNER SHOP</title>
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Rajdhani:wght@400;500;600;700&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
@@ -468,10 +471,11 @@ footer{text-align:center;margin-top:24px;opacity:.3;font-size:.6rem;letter-spaci
   <div id="admin-lock-view" class="detail-body">
     <div class="hero-page" style="min-height:50vh;">
       <i class="fas fa-lock hero-icon" style="color:#ff1a35;filter:drop-shadow(0 0 20px #ff1a35);"></i>
-      <div class="hero-text">Cet espace est protégé.<br>Entre ton <b>code d'accès</b> pour continuer.</div>
-      <input id="admin-code-input" class="admin-input" type="password" placeholder="Code d'accès" style="text-align:center;max-width:220px;margin-bottom:10px;" onkeydown="if(event.key==='Enter')checkAdminCode();">
-      <div id="admin-lock-error" style="display:none;color:#ff1a35;font-size:.72rem;margin-bottom:12px;">Code incorrect</div>
-      <div class="hero-btn" onclick="checkAdminCode()">Déverrouiller</div>
+      <div class="hero-text">Cet espace est protégé.<br>Connecte-toi avec ton <b>compte admin</b> pour continuer.</div>
+      <input id="admin-email-input" class="admin-input" type="email" placeholder="Email" style="text-align:center;max-width:240px;margin-bottom:10px;" autocomplete="username">
+      <input id="admin-pass-input" class="admin-input" type="password" placeholder="Mot de passe" style="text-align:center;max-width:240px;margin-bottom:10px;" autocomplete="current-password" onkeydown="if(event.key==='Enter')checkAdminCode();">
+      <div id="admin-lock-error" style="display:none;color:#ff1a35;font-size:.72rem;margin-bottom:12px;">Identifiants incorrects</div>
+      <div class="hero-btn" id="admin-login-btn" onclick="checkAdminCode()">Se connecter</div>
     </div>
   </div>
 
@@ -977,43 +981,80 @@ const DEFAULTS = PRODUCTS.map(p=>({id:p.id, name:p.name, price:p.price, desc:p.d
 let adminEditId = null;
 let adminEditImages = [];
 let adminUnlocked = false;
-const ADMIN_CODE = "Scherazade4444"; // <- change ce code ici si besoin
 
-function checkAdminCode(){
-  const val = document.getElementById('admin-code-input').value.trim();
-  if(val === ADMIN_CODE){
+/* ---- Firebase ---- */
+const firebaseConfig = {
+  apiKey: "AIzaSyDHKIO-tGjxKq9yqaB5kcdf5eGi9H3OIYM",
+  authDomain: "ledesigner-3bca3.firebaseapp.com",
+  projectId: "ledesigner-3bca3",
+  storageBucket: "ledesigner-3bca3.firebasestorage.app",
+  messagingSenderId: "10841277236",
+  appId: "1:10841277236:web:b7c6282fd82a0278cedb61"
+};
+let fbApp = null, fbAuth = null, fbDb = null, firebaseReady = false;
+try{
+  fbApp = firebase.initializeApp(firebaseConfig);
+  fbAuth = firebase.auth();
+  fbDb = firebase.firestore();
+  firebaseReady = true;
+  fbAuth.onAuthStateChanged(user=>{ adminUnlocked = !!user; });
+}catch(e){ console.warn("Firebase indisponible :", e); }
+
+function hasStorage(){ return firebaseReady && fbDb; }
+
+async function checkAdminCode(){
+  const email = document.getElementById('admin-email-input').value.trim();
+  const pass = document.getElementById('admin-pass-input').value;
+  const btn = document.getElementById('admin-login-btn');
+  if(!firebaseReady){ document.getElementById('admin-lock-error').textContent = "Connexion Firebase indisponible ici (fonctionnera une fois l'app hébergée)."; document.getElementById('admin-lock-error').style.display='block'; return; }
+  if(!email || !pass) return;
+  btn.textContent = "Connexion...";
+  try{
+    await fbAuth.signInWithEmailAndPassword(email, pass);
     adminUnlocked = true;
-    document.getElementById('admin-code-input').value = '';
+    document.getElementById('admin-pass-input').value = '';
     document.getElementById('admin-lock-error').style.display = 'none';
     showAdminList();
-  } else {
+  }catch(e){
+    document.getElementById('admin-lock-error').textContent = "Identifiants incorrects";
     document.getElementById('admin-lock-error').style.display = 'block';
     if(tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
   }
+  btn.textContent = "Se connecter";
 }
 
-function hasStorage(){ return typeof window.storage !== 'undefined' && window.storage; }
+/* ---- Firestore helpers (collection "shop") ---- */
+async function fsGet(docId){
+  if(!hasStorage()) return null;
+  try{
+    const snap = await fbDb.collection('shop').doc(docId).get();
+    return snap.exists ? snap.data() : null;
+  }catch(e){ return null; }
+}
+async function fsSet(docId, dataObj){
+  if(!hasStorage()) return false;
+  try{
+    await fbDb.collection('shop').doc(docId).set(dataObj);
+    return true;
+  }catch(e){ return false; }
+}
 
 async function loadMediaOverrides(){
-  if(!hasStorage()) return;
-  try{
-    const res = await window.storage.get('product-media-overrides', false);
-    if(res && res.value){
-      const overrides = JSON.parse(res.value);
-      Object.keys(overrides).forEach(id=>{
-        const p = PRODUCTS.find(x=>x.id===id);
-        if(p){
-          const o = overrides[id];
-          if(o.name) p.name = o.name;
-          if('price' in o) p.price = o.price;
-          if(o.desc) p.desc = o.desc;
-          if(o.images && o.images.length) p.images = o.images;
-          if('video' in o) p.video = o.video;
-        }
-      });
-      renderProducts();
-    }
-  }catch(e){ /* pas encore d'overrides enregistrés */ }
+  const overrides = await fsGet('products');
+  if(overrides){
+    Object.keys(overrides).forEach(id=>{
+      const p = PRODUCTS.find(x=>x.id===id);
+      if(p){
+        const o = overrides[id];
+        if(o.name) p.name = o.name;
+        if('price' in o) p.price = o.price;
+        if(o.desc) p.desc = o.desc;
+        if(o.images && o.images.length) p.images = o.images;
+        if('video' in o) p.video = o.video;
+      }
+    });
+    renderProducts();
+  }
 }
 
 let secretTapCount = 0;
@@ -1121,34 +1162,26 @@ async function saveAdminNotif(){
   NOTIF.title = document.getElementById('an-title').value.trim();
   NOTIF.message = document.getElementById('an-message').value.trim();
   renderNotifBanner();
-  if(hasStorage()){
-    try{ await window.storage.set('notif-override', JSON.stringify(NOTIF), false); }catch(e){}
-  }
+  await fsSet('notif', NOTIF);
   showToast("Notification enregistrée ✓");
   showAdminList();
 }
 
 /* ---- chargement des overrides site/réseaux/notif ---- */
 async function loadSiteOverrides(){
-  if(!hasStorage()) return;
-  try{
-    const res = await window.storage.get('site-content-overrides', false);
-    if(res && res.value){
-      Object.assign(SITE_INFO, JSON.parse(res.value));
-      applySiteInfoToDOM();
-    }
-  }catch(e){}
-  try{
-    const res2 = await window.storage.get('notif-override', false);
-    if(res2 && res2.value){
-      Object.assign(NOTIF, JSON.parse(res2.value));
-      renderNotifBanner();
-    }
-  }catch(e){}
+  const siteData = await fsGet('site-info');
+  if(siteData){
+    Object.assign(SITE_INFO, siteData);
+    applySiteInfoToDOM();
+  }
+  const notifData = await fsGet('notif');
+  if(notifData){
+    Object.assign(NOTIF, notifData);
+    renderNotifBanner();
+  }
 }
 async function persistSiteInfo(){
-  if(!hasStorage()) return;
-  try{ await window.storage.set('site-content-overrides', JSON.stringify(SITE_INFO), false); }catch(e){}
+  await fsSet('site-info', SITE_INFO);
 }
 function renderAdminList(){
   const list = document.getElementById('admin-list');
@@ -1225,23 +1258,14 @@ async function saveAdminEdit(){
   p.video = videoVal || null;
 
   if(!hasStorage()){
-    showToast("Modifié pour cette session (stockage indisponible)");
+    showToast("Modifié pour cette session (Firebase indisponible ici)");
     renderProducts(); showAdminList();
     return;
   }
-  try{
-    let overrides = {};
-    try{
-      const res = await window.storage.get('product-media-overrides', false);
-      if(res && res.value) overrides = JSON.parse(res.value);
-    }catch(e){}
-    overrides[adminEditId] = {name:p.name, price:p.price, desc:p.desc, images:p.images, video:p.video};
-    const result = await window.storage.set('product-media-overrides', JSON.stringify(overrides), false);
-    if(!result){ showToast("Erreur d'enregistrement"); return; }
-    showToast("Produit enregistré ✓");
-  }catch(e){
-    showToast("Erreur d'enregistrement");
-  }
+  const overrides = (await fsGet('products')) || {};
+  overrides[adminEditId] = {name:p.name, price:p.price, desc:p.desc, images:p.images, video:p.video};
+  const ok = await fsSet('products', overrides);
+  showToast(ok ? "Produit enregistré ✓" : "Erreur d'enregistrement");
   renderProducts();
   showAdminList();
 }
@@ -1254,15 +1278,9 @@ async function resetAdminEdit(){
   p.images = [...def.images];
   p.video = def.video;
   if(hasStorage()){
-    try{
-      let overrides = {};
-      try{
-        const res = await window.storage.get('product-media-overrides', false);
-        if(res && res.value) overrides = JSON.parse(res.value);
-      }catch(e){}
-      delete overrides[adminEditId];
-      await window.storage.set('product-media-overrides', JSON.stringify(overrides), false);
-    }catch(e){}
+    const overrides = (await fsGet('products')) || {};
+    delete overrides[adminEditId];
+    await fsSet('products', overrides);
   }
   showToast("Produit réinitialisé");
   renderProducts();
