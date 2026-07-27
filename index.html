@@ -15,27 +15,27 @@
 
 <style>
 :root{
-  --bg:#07080b;
-  --bg2:#0c0e13;
-  --neon:#33ff8e;
-  --neon-dim:rgba(51,255,142,.12);
+  --bg:#020d04;
+  --bg2:#041508;
+  --neon:#39ff6e;
+  --neon-dim:rgba(57,255,110,.15);
   --purple:#8b5cf6;
   --gold:#d4af37;
-  --glass:rgba(255,255,255,0.05);
-  --glass-brd:rgba(255,255,255,0.09);
-  --text:#f2f4f2;
-  --muted:#83897f;
+  --glass:rgba(57,255,110,0.05);
+  --glass-brd:rgba(57,255,110,0.13);
+  --text:#e8ffe8;
+  --muted:#6a9470;
   --danger:#ff4d6d;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;overflow:hidden;user-select:none;height:100%;}
 
-.bg-vibe{position:fixed;inset:0;z-index:-3;background:radial-gradient(circle at 50% -10%,#0f1a13,var(--bg) 60%);}
+.bg-vibe{position:fixed;inset:0;z-index:-3;background:radial-gradient(circle at 50% -10%,#0a2e10,var(--bg) 60%);}
 .grain{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.035;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
 .glow{position:fixed;width:420px;height:420px;border-radius:50%;filter:blur(150px);pointer-events:none;z-index:-2;}
-.glow.g1{top:-120px;left:-100px;background:var(--neon);opacity:.14;animation:drift1 14s ease-in-out infinite;}
-.glow.g2{bottom:-140px;right:-120px;background:var(--purple);opacity:.16;animation:drift2 18s ease-in-out infinite;}
-.glow.g3{top:40%;left:30%;width:300px;height:300px;background:#ff1a35;opacity:.08;animation:drift3 20s ease-in-out infinite;}
+.glow.g1{top:-120px;left:-100px;background:var(--neon);opacity:.28;animation:drift1 14s ease-in-out infinite;}
+.glow.g2{bottom:-140px;right:-120px;background:var(--neon);opacity:.18;animation:drift2 18s ease-in-out infinite;}
+.glow.g3{top:40%;left:30%;width:300px;height:300px;background:#00ff55;opacity:.12;animation:drift3 20s ease-in-out infinite;}
 @keyframes drift1{0%,100%{transform:translate(0,0);}50%{transform:translate(70px,50px);}}
 @keyframes drift2{0%,100%{transform:translate(0,0);}50%{transform:translate(-60px,-70px);}}
 @keyframes drift3{0%,100%{transform:translate(0,0) scale(1);}50%{transform:translate(-40px,60px) scale(1.15);}}
@@ -230,7 +230,10 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:
 footer{text-align:center;margin-top:24px;opacity:.3;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;}
 
 /* ---------- PROFIL PAGE ---------- */
-.profil-avatar{width:76px;height:76px;border-radius:50%;margin:10px auto 14px;background:linear-gradient(135deg,var(--purple),var(--neon));display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-family:'Bungee';color:#000;}
+.profil-avatar{width:80px;height:80px;border-radius:50%;margin:10px auto 6px;background:linear-gradient(135deg,var(--purple),var(--neon));display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-family:'Bungee';color:#000;border:3px solid var(--neon);box-shadow:0 0 18px var(--neon),0 0 40px rgba(57,255,110,.35);overflow:hidden;}
+.profil-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+.profil-username{text-align:center;font-size:.72rem;color:var(--neon);margin-bottom:4px;letter-spacing:.05em;}
+.profil-id{text-align:center;font-size:.62rem;color:var(--muted);margin-bottom:16px;}
 .profil-row{display:flex;align-items:center;gap:14px;padding:14px;background:var(--glass);border:1px solid var(--glass-brd);border-radius:14px;margin-bottom:10px;font-size:.82rem;}
 .profil-row i{color:var(--neon);width:20px;text-align:center;}
 
@@ -414,8 +417,10 @@ footer{text-align:center;margin-top:24px;opacity:.3;font-size:.6rem;letter-spaci
 <!-- ============ PROFIL ============ -->
 <div id="page-profil" class="page">
   <div class="container">
-    <div class="profil-avatar" id="profil-avatar">🖤</div>
-    <div style="text-align:center;font-weight:700;margin-bottom:16px;" id="profil-name">Client Le Designer</div>
+    <div class="profil-avatar" id="profil-avatar">👤</div>
+    <div style="text-align:center;font-weight:700;margin-bottom:4px;" id="profil-name">Client Le Designer</div>
+    <div class="profil-username" id="profil-username"></div>
+    <div class="profil-id" id="profil-id"></div>
     <div class="profil-row" onclick="switchPage('panier', document.querySelectorAll('.nav-item')[2])"><i class="fas fa-bag-shopping"></i>Mon panier</div>
     <div class="profil-row" onclick="switchPage('avis', document.querySelectorAll('.nav-item')[1])"><i class="fas fa-star"></i>Mes avis</div>
     <div class="profil-row"><i class="fas fa-heart"></i>Mes favoris</div>
@@ -616,13 +621,24 @@ let CATALOG_LINK = "https://t.me/+7RMihQjWOGlmNjU8";
 /* ---------------- PROFIL TELEGRAM ---------------- */
 const tgUser = (tg.initDataUnsafe && tg.initDataUnsafe.user) ? tg.initDataUnsafe.user : null;
 function applyTelegramIdentity(){
-  const greetEl = document.getElementById('greet-name');
-  const avatarEl = document.getElementById('profil-avatar');
-  const nameEl = document.getElementById('profil-name');
+  const greetEl    = document.getElementById('greet-name');
+  const avatarEl   = document.getElementById('profil-avatar');
+  const nameEl     = document.getElementById('profil-name');
+  const userEl     = document.getElementById('profil-username');
+  const idEl       = document.getElementById('profil-id');
   if(tgUser){
-    if(greetEl) greetEl.textContent = `👋 Bonjour ${tgUser.first_name} !`;
-    if(nameEl) nameEl.textContent = tgUser.username ? `@${tgUser.username}` : tgUser.first_name;
-    if(avatarEl) avatarEl.textContent = (tgUser.first_name||'?').charAt(0).toUpperCase();
+    const fullName = [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' ');
+    if(greetEl)  greetEl.textContent = `👋 Bonjour ${tgUser.first_name} !`;
+    if(nameEl)   nameEl.textContent  = fullName || 'Client Le Designer';
+    if(userEl)   userEl.textContent  = tgUser.username ? `@${tgUser.username}` : '';
+    if(idEl)     idEl.textContent    = tgUser.id ? `ID : ${tgUser.id}` : '';
+    if(avatarEl){
+      if(tgUser.photo_url){
+        avatarEl.innerHTML = `<img src="${tgUser.photo_url}" alt="avatar">`;
+      } else {
+        avatarEl.textContent = (tgUser.first_name||'?').charAt(0).toUpperCase();
+      }
+    }
   }
 }
 function trackEvent(type, cartSnapshot, totalItems){
