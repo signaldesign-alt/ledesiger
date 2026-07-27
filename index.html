@@ -230,8 +230,8 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:
 footer{text-align:center;margin-top:24px;opacity:.3;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;}
 
 /* ---------- PROFIL PAGE ---------- */
-.profil-avatar{width:80px;height:80px;border-radius:50%;margin:10px auto 6px;background:linear-gradient(135deg,var(--purple),var(--neon));display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-family:'Bungee';color:#000;border:3px solid var(--neon);box-shadow:0 0 18px var(--neon),0 0 40px rgba(57,255,110,.35);overflow:hidden;}
-.profil-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+.profil-avatar{width:82px;height:82px;border-radius:50%;margin:10px auto 6px;display:flex;align-items:center;justify-content:center;font-size:2rem;font-family:'Bungee';font-weight:700;border:3px solid var(--neon);box-shadow:0 0 18px var(--neon),0 0 40px rgba(57,255,110,.35);overflow:hidden;flex-shrink:0;}
+.profil-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
 .profil-username{text-align:center;font-size:.72rem;color:var(--neon);margin-bottom:4px;letter-spacing:.05em;}
 .profil-id{text-align:center;font-size:.62rem;color:var(--muted);margin-bottom:16px;}
 .profil-row{display:flex;align-items:center;gap:14px;padding:14px;background:var(--glass);border:1px solid var(--glass-brd);border-radius:14px;margin-bottom:10px;font-size:.82rem;}
@@ -627,23 +627,56 @@ let CATALOG_LINK = "https://t.me/+7RMihQjWOGlmNjU8";
 
 /* ---------------- PROFIL TELEGRAM ---------------- */
 const tgUser = (tg.initDataUnsafe && tg.initDataUnsafe.user) ? tg.initDataUnsafe.user : null;
+
+/* Génère une couleur unique et déterministe à partir de l'ID utilisateur (comme Telegram) */
+function avatarColor(id){
+  const PALETTES = [
+    ['#ff6b6b','#ffa500'],['#a855f7','#39ff6e'],['#06b6d4','#6366f1'],
+    ['#f43f5e','#fb923c'],['#10b981','#3b82f6'],['#f59e0b','#ef4444'],
+    ['#8b5cf6','#ec4899'],['#14b8a6','#a3e635']
+  ];
+  const idx = Math.abs((id||0)) % PALETTES.length;
+  return PALETTES[idx];
+}
+
+function setAvatarFallback(el, user){
+  const [c1, c2] = avatarColor(user.id);
+  const letter = (user.first_name||'?').charAt(0).toUpperCase();
+  el.style.background = `linear-gradient(135deg,${c1},${c2})`;
+  el.style.color = '#fff';
+  el.style.textShadow = `0 2px 8px rgba(0,0,0,.4)`;
+  el.textContent = letter;
+}
+
 function applyTelegramIdentity(){
-  const greetEl    = document.getElementById('greet-name');
-  const avatarEl   = document.getElementById('profil-avatar');
-  const nameEl     = document.getElementById('profil-name');
-  const userEl     = document.getElementById('profil-username');
-  const idEl       = document.getElementById('profil-id');
+  const greetEl = document.getElementById('greet-name');
+  const avatarEl = document.getElementById('profil-avatar');
+  const nameEl  = document.getElementById('profil-name');
+  const userEl  = document.getElementById('profil-username');
+  const idEl    = document.getElementById('profil-id');
   if(tgUser){
     const fullName = [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' ');
-    if(greetEl)  greetEl.textContent = `👋 Bonjour ${tgUser.first_name} !`;
-    if(nameEl)   nameEl.textContent  = fullName || 'Client Le Designer';
-    if(userEl)   userEl.textContent  = tgUser.username ? `@${tgUser.username}` : '';
-    if(idEl)     idEl.textContent    = tgUser.id ? `ID : ${tgUser.id}` : '';
+    if(greetEl) greetEl.textContent = `👋 Bonjour ${tgUser.first_name} !`;
+    if(nameEl)  nameEl.textContent  = fullName || 'Client Le Designer';
+    if(userEl)  userEl.textContent  = tgUser.username ? `@${tgUser.username}` : '';
+    if(idEl)    idEl.textContent    = tgUser.id ? `ID : ${tgUser.id}` : '';
     if(avatarEl){
       if(tgUser.photo_url){
-        avatarEl.innerHTML = `<img src="${tgUser.photo_url}" alt="avatar">`;
+        // Essaie de charger la photo Telegram, fallback sur initiales si erreur
+        const img = new Image();
+        img.onload = () => {
+          avatarEl.innerHTML = '';
+          avatarEl.style.background = 'none';
+          avatarEl.appendChild(img);
+        };
+        img.onerror = () => setAvatarFallback(avatarEl, tgUser);
+        img.src = tgUser.photo_url;
+        img.alt = 'avatar';
+        img.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
+        // Affiche les initiales pendant le chargement
+        setAvatarFallback(avatarEl, tgUser);
       } else {
-        avatarEl.textContent = (tgUser.first_name||'?').charAt(0).toUpperCase();
+        setAvatarFallback(avatarEl, tgUser);
       }
     }
   }
