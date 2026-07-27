@@ -614,7 +614,14 @@ const tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp 
   expand(){}, ready(){}, HapticFeedback:null,
   showAlert(msg){ alert(msg.replace(/\\n/g,"\n")); }
 };
-try{ tg.expand(); tg.headerColor = "#07080b"; }catch(e){}
+try{ tg.expand(); tg.headerColor = "#020d04"; }catch(e){}
+
+/* ============ localStorage HELPERS ============ */
+const LS = {
+  get(key){ try{ const v=localStorage.getItem(key); return v ? JSON.parse(v) : null; }catch(e){ return null; } },
+  set(key,val){ try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){} },
+  del(key){ try{ localStorage.removeItem(key); }catch(e){} }
+};
 let ORDER_LINK = "https://t.me/babydriverss";
 let CATALOG_LINK = "https://t.me/+7RMihQjWOGlmNjU8";
 
@@ -771,7 +778,17 @@ let sortMode = 0; // 0 default, 1 asc, 2 desc
 const SORT_LABELS = ["Prix : défaut","Prix : croissant","Prix : décroissant"];
 let favOnly = false;
 const favorites = new Set();
-let cart = []; // {id, qty}
+let cart = [];
+function saveCart(){ LS.set('lds_cart', cart); }
+function loadCart(){
+  const saved = LS.get('lds_cart');
+  if(saved && Array.isArray(saved)) cart = saved;
+}
+function saveFavorites(){ LS.set('lds_favs', [...favorites]); }
+function loadFavorites(){
+  const saved = LS.get('lds_favs');
+  if(saved && Array.isArray(saved)) saved.forEach(id => favorites.add(id));
+}
 
 function priceLabel(p){ return p.price===null ? "Sur devis" : p.price+"€"; }
 
@@ -793,6 +810,7 @@ function toggleFavOnly(){
 function toggleFav(id, ev){
   ev.stopPropagation();
   favorites.has(id) ? favorites.delete(id) : favorites.add(id);
+  saveFavorites();
   renderProducts();
 }
 
@@ -847,7 +865,10 @@ function renderProducts(){
   }
   gsap.from(zone.querySelectorAll('.card'), {opacity:0, y:12, stagger:0.03, duration:0.3});
 }
+loadCart();
+loadFavorites();
 renderProducts();
+updateCartBadge();
 loadMediaOverrides();
 applySiteInfoToDOM();
 loadSiteOverrides();
@@ -875,6 +896,7 @@ function quickAdd(id, ev){
   if(p.price===null){ showToast("Demande un devis pour ce produit"); return; }
   const existing = cart.find(c=>c.id===id);
   if(existing) existing.qty++; else cart.push({id, qty:1});
+  saveCart();
   trackEvent('addToCart', id);
   updateCartBadge();
   if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
@@ -947,6 +969,7 @@ function addToCart(){
   }
   const existing = cart.find(c=>c.id===p.id);
   if(existing) existing.qty += currentQty; else cart.push({id:p.id, qty:currentQty});
+  saveCart();
   updateCartBadge();
   trackEvent('addToCart', p.id);
   if(tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
@@ -1009,11 +1032,13 @@ function goToCheckout(){
 function cartChangeQty(i, delta){
   cart[i].qty += delta;
   if(cart[i].qty<=0) cart.splice(i,1);
+  saveCart();
   updateCartBadge();
   renderCart();
 }
 function cartRemove(i){
   cart.splice(i,1);
+  saveCart();
   updateCartBadge();
   renderCart();
 }
@@ -1081,20 +1106,28 @@ async function fsSet(docId, dataObj){
   }catch(e){ return false; }
 }
 
+function applyProductOverrides(overrides){
+  Object.keys(overrides).forEach(id=>{
+    const p = PRODUCTS.find(x=>x.id===id);
+    if(p){
+      const o = overrides[id];
+      if(o.name) p.name = o.name;
+      if('price' in o) p.price = o.price;
+      if(o.desc) p.desc = o.desc;
+      if(o.images && o.images.length) p.images = o.images;
+      if('video' in o) p.video = o.video;
+    }
+  });
+}
 async function loadMediaOverrides(){
+  // Charge d'abord depuis le cache local (instantané)
+  const cached = LS.get('lds_products');
+  if(cached){ applyProductOverrides(cached); renderProducts(); }
+  // Puis sync Firestore
   const overrides = await fsGet('products');
   if(overrides){
-    Object.keys(overrides).forEach(id=>{
-      const p = PRODUCTS.find(x=>x.id===id);
-      if(p){
-        const o = overrides[id];
-        if(o.name) p.name = o.name;
-        if('price' in o) p.price = o.price;
-        if(o.desc) p.desc = o.desc;
-        if(o.images && o.images.length) p.images = o.images;
-        if('video' in o) p.video = o.video;
-      }
-    });
+    LS.set('lds_products', overrides);
+    applyProductOverrides(overrides);
     renderProducts();
   }
 }
@@ -1204,6 +1237,7 @@ async function saveAdminNotif(){
   NOTIF.title = document.getElementById('an-title').value.trim();
   NOTIF.message = document.getElementById('an-message').value.trim();
   renderNotifBanner();
+  LS.set('lds_notif', NOTIF);
   await fsSet('notif', NOTIF);
   showToast("Notification enregistrée ✓");
   showAdminList();
@@ -1211,18 +1245,27 @@ async function saveAdminNotif(){
 
 /* ---- chargement des overrides site/réseaux/notif ---- */
 async function loadSiteOverrides(){
+  // Charge d'abord depuis le cache local (instantané)
+  const cachedSite = LS.get('lds_site');
+  if(cachedSite){ Object.assign(SITE_INFO, cachedSite); applySiteInfoToDOM(); }
+  const cachedNotif = LS.get('lds_notif');
+  if(cachedNotif){ Object.assign(NOTIF, cachedNotif); renderNotifBanner(); }
+  // Puis sync Firestore
   const siteData = await fsGet('site-info');
   if(siteData){
+    LS.set('lds_site', siteData);
     Object.assign(SITE_INFO, siteData);
     applySiteInfoToDOM();
   }
   const notifData = await fsGet('notif');
   if(notifData){
+    LS.set('lds_notif', notifData);
     Object.assign(NOTIF, notifData);
     renderNotifBanner();
   }
 }
 async function persistSiteInfo(){
+  LS.set('lds_site', SITE_INFO);
   await fsSet('site-info', SITE_INFO);
 }
 function renderAdminList(){
@@ -1299,15 +1342,20 @@ async function saveAdminEdit(){
   p.images = adminEditImages.length ? [...adminEditImages] : p.images;
   p.video = videoVal || null;
 
+  // Sauvegarde toujours dans localStorage en premier
+  const lsOverrides = LS.get('lds_products') || {};
+  lsOverrides[adminEditId] = {name:p.name, price:p.price, desc:p.desc, images:p.images, video:p.video};
+  LS.set('lds_products', lsOverrides);
   if(!hasStorage()){
-    showToast("Modifié pour cette session (Firebase indisponible ici)");
+    showToast("Modifié et sauvegardé localement ✓");
     renderProducts(); showAdminList();
     return;
   }
   const overrides = (await fsGet('products')) || {};
   overrides[adminEditId] = {name:p.name, price:p.price, desc:p.desc, images:p.images, video:p.video};
   const ok = await fsSet('products', overrides);
-  showToast(ok ? "Produit enregistré ✓" : "Erreur d'enregistrement");
+  if(ok) LS.set('lds_products', overrides);
+  showToast(ok ? "Produit enregistré ✓" : "Sauvegardé localement (Firebase indisponible)");
   renderProducts();
   showAdminList();
 }
@@ -1319,10 +1367,15 @@ async function resetAdminEdit(){
   p.desc = def.desc;
   p.images = [...def.images];
   p.video = def.video;
+  // Nettoyer localStorage
+  const lsOv = LS.get('lds_products') || {};
+  delete lsOv[adminEditId];
+  LS.set('lds_products', lsOv);
   if(hasStorage()){
     const overrides = (await fsGet('products')) || {};
     delete overrides[adminEditId];
     await fsSet('products', overrides);
+    LS.set('lds_products', overrides);
   }
   showToast("Produit réinitialisé");
   renderProducts();
